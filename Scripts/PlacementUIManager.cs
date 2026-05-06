@@ -20,7 +20,7 @@ public class PlacementUIManager : MonoBehaviour
     private void Start()
     {
         if (placementController == null)
-            placementController = FindFirstObjectByType<PlacementController>();
+            placementController = FindAnyObjectByType<PlacementController>();
 
         CreateItemButtons();
         UpdateUI();

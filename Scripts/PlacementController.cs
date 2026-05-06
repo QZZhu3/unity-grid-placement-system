@@ -25,7 +25,7 @@ public class PlacementController : MonoBehaviour
             mainCamera = Camera.main;
 
         if (gridManager == null)
-            gridManager = FindFirstObjectByType<GridManager>();
+            gridManager = FindAnyObjectByType<GridManager>();
     }
 
     private void Update()
