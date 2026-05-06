@@ -1,8 +1,10 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// Controls the placement system, handling item selection, preview display,
 /// grid snapping via raycast, validity checking, and placement confirmation.
+/// Supports both Legacy and New Input System.
 /// </summary>
 public class PlacementController : MonoBehaviour
 {
@@ -98,7 +100,8 @@ public class PlacementController : MonoBehaviour
     /// </summary>
     private void UpdatePreviewPosition()
     {
-        Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        Vector2 mousePos = Mouse.current != null ? Mouse.current.position.ReadValue() : (Vector2)Input.mousePosition;
+        Ray ray = mainCamera.ScreenPointToRay(mousePos);
 
         if (Physics.Raycast(ray, out RaycastHit hit, RaycastDistance, groundLayerMask))
         {
@@ -128,7 +131,11 @@ public class PlacementController : MonoBehaviour
     /// </summary>
     private void HandleRotationInput()
     {
-        if (Input.GetKeyDown(KeyCode.R))
+        bool rotatePressed = Keyboard.current != null
+            ? Keyboard.current.rKey.wasPressedThisFrame
+            : Input.GetKeyDown(KeyCode.R);
+
+        if (rotatePressed)
         {
             currentRotation = (currentRotation + 90) % 360;
             previewObject.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
@@ -140,7 +147,11 @@ public class PlacementController : MonoBehaviour
     /// </summary>
     private void HandlePlacementInput()
     {
-        if (Input.GetMouseButtonDown(0) && canPlace)
+        bool clickPressed = Mouse.current != null
+            ? Mouse.current.leftButton.wasPressedThisFrame
+            : Input.GetMouseButtonDown(0);
+
+        if (clickPressed && canPlace)
         {
             PlaceItem();
         }
