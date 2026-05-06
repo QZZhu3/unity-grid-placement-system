@@ -3,6 +3,7 @@ using UnityEngine;
 /// <summary>
 /// Manages the visual preview of a placeable item before it's placed.
 /// Shows green when placement is valid, red when invalid.
+/// Compatible with both URP and Built-in Render Pipeline.
 /// </summary>
 public class PlacementPreview : MonoBehaviour
 {
@@ -15,65 +16,103 @@ public class PlacementPreview : MonoBehaviour
     {
         renderers = GetComponentsInChildren<Renderer>();
         CreatePreviewMaterials();
+        ApplyMaterial(validMaterial);
     }
 
     /// <summary>
-    /// Creates materials for valid and invalid placement states.
+    /// Creates semi-transparent materials for valid (green) and invalid (red) states.
+    /// Automatically detects URP or Built-in Render Pipeline.
     /// </summary>
     private void CreatePreviewMaterials()
     {
-        validMaterial = new Material(Shader.Find("Standard"));
-        validMaterial.color = new Color(0, 1, 0, 0.5f);
-        validMaterial.SetFloat("_Mode", 3);
-        validMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        validMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        validMaterial.SetInt("_ZWrite", 0);
-        validMaterial.renderQueue = 3000;
+        Shader shader = FindCompatibleTransparentShader();
 
-        invalidMaterial = new Material(Shader.Find("Standard"));
-        invalidMaterial.color = new Color(1, 0, 0, 0.5f);
-        invalidMaterial.SetFloat("_Mode", 3);
-        invalidMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        invalidMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        invalidMaterial.SetInt("_ZWrite", 0);
-        invalidMaterial.renderQueue = 3000;
+        validMaterial = new Material(shader);
+        SetTransparentColor(validMaterial, new Color(0f, 1f, 0f, 0.5f));
+
+        invalidMaterial = new Material(shader);
+        SetTransparentColor(invalidMaterial, new Color(1f, 0f, 0f, 0.5f));
     }
 
     /// <summary>
-    /// Sets the validity state of the preview.
+    /// Finds a compatible transparent shader — prefers URP Lit, falls back to Built-in Standard.
     /// </summary>
-    public void SetValidity(bool valid)
+    private Shader FindCompatibleTransparentShader()
     {
-        if (isValid == valid)
-            return;
+        // Try URP shaders first
+        Shader urpLit = Shader.Find("Universal Render Pipeline/Lit");
+        if (urpLit != null) return urpLit;
 
-        isValid = valid;
-        Material materialToUse = isValid ? validMaterial : invalidMaterial;
+        Shader urpSimple = Shader.Find("Universal Render Pipeline/Simple Lit");
+        if (urpSimple != null) return urpSimple;
 
-        foreach (Renderer renderer in renderers)
+        Shader urpUnlit = Shader.Find("Universal Render Pipeline/Unlit");
+        if (urpUnlit != null) return urpUnlit;
+
+        // Fallback to Built-in Standard
+        return Shader.Find("Standard");
+    }
+
+    /// <summary>
+    /// Sets the color and enables transparency on a material.
+    /// Handles both URP and Built-in pipeline transparency settings.
+    /// </summary>
+    private void SetTransparentColor(Material mat, Color color)
+    {
+        mat.color = color;
+
+        // URP transparency setup
+        if (mat.HasProperty("_Surface"))
         {
-            Material[] materials = new Material[renderer.materials.Length];
-            for (int i = 0; i < materials.Length; i++)
-            {
-                materials[i] = materialToUse;
-            }
-            renderer.materials = materials;
+            mat.SetFloat("_Surface", 1f); // 1 = Transparent in URP
+            mat.SetFloat("_Blend", 0f);
+            mat.SetFloat("_AlphaClip", 0f);
+            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            mat.renderQueue = 3000;
+        }
+        else
+        {
+            // Built-in Standard transparency setup
+            mat.SetFloat("_Mode", 3f);
+            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.SetInt("_ZWrite", 0);
+            mat.DisableKeyword("_ALPHATEST_ON");
+            mat.EnableKeyword("_ALPHABLEND_ON");
+            mat.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            mat.renderQueue = 3000;
         }
     }
 
     /// <summary>
-    /// Gets the current validity state.
+    /// Applies a material to all renderers on the preview object.
     /// </summary>
-    public bool IsValid => isValid;
+    private void ApplyMaterial(Material mat)
+    {
+        foreach (Renderer r in renderers)
+        {
+            Material[] mats = new Material[r.materials.Length];
+            for (int i = 0; i < mats.Length; i++)
+                mats[i] = mat;
+            r.materials = mats;
+        }
+    }
 
     /// <summary>
-    /// Cleans up materials when destroyed.
+    /// Sets the validity state and updates the preview color.
     /// </summary>
+    public void SetValidity(bool valid)
+    {
+        if (isValid == valid) return;
+        isValid = valid;
+        ApplyMaterial(isValid ? validMaterial : invalidMaterial);
+    }
+
+    public bool IsValid => isValid;
+
     private void OnDestroy()
     {
-        if (validMaterial != null)
-            Destroy(validMaterial);
-        if (invalidMaterial != null)
-            Destroy(invalidMaterial);
+        if (validMaterial != null) Destroy(validMaterial);
+        if (invalidMaterial != null) Destroy(invalidMaterial);
     }
 }
