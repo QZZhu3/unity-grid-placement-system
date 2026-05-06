@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 /// <summary>
 /// Controls the placement system, handling item selection, preview display,
 /// grid snapping via raycast, validity checking, and placement confirmation.
-/// Supports both Legacy and New Input System.
+/// Uses the New Input System (UnityEngine.InputSystem).
 /// </summary>
 public class PlacementController : MonoBehaviour
 {
@@ -82,10 +82,8 @@ public class PlacementController : MonoBehaviour
         previewComponent = previewObject.AddComponent<PlacementPreview>();
 
         // Disable colliders on preview
-        foreach (Collider collider in previewObject.GetComponentsInChildren<Collider>())
-        {
-            collider.enabled = false;
-        }
+        foreach (Collider col in previewObject.GetComponentsInChildren<Collider>())
+            col.enabled = false;
 
         // Disable scripts on preview
         foreach (MonoBehaviour script in previewObject.GetComponentsInChildren<MonoBehaviour>())
@@ -100,21 +98,15 @@ public class PlacementController : MonoBehaviour
     /// </summary>
     private void UpdatePreviewPosition()
     {
-        Vector2 mousePos = Mouse.current != null ? Mouse.current.position.ReadValue() : (Vector2)Input.mousePosition;
+        Vector2 mousePos = Mouse.current.position.ReadValue();
         Ray ray = mainCamera.ScreenPointToRay(mousePos);
 
         if (Physics.Raycast(ray, out RaycastHit hit, RaycastDistance, groundLayerMask))
         {
-            // Convert hit point to grid position
             previewGridPosition = gridManager.WorldToGrid(hit.point);
-
-            // Get the adjusted size based on rotation
             Vector2Int adjustedSize = GetAdjustedSize(selectedItem.Size, currentRotation);
-
-            // Check if placement is valid
             canPlace = gridManager.IsAreaAvailable(previewGridPosition, adjustedSize);
 
-            // Update preview position and validity
             Vector3 previewWorldPosition = gridManager.GridToWorld(previewGridPosition);
             previewObject.transform.position = previewWorldPosition;
             previewComponent.SetValidity(canPlace);
@@ -127,15 +119,11 @@ public class PlacementController : MonoBehaviour
     }
 
     /// <summary>
-    /// Handles rotation input (R key cycles through 0°, 90°, 180°, 270°).
+    /// Handles rotation input — R key cycles through 0, 90, 180, 270 degrees.
     /// </summary>
     private void HandleRotationInput()
     {
-        bool rotatePressed = Keyboard.current != null
-            ? Keyboard.current.rKey.wasPressedThisFrame
-            : Input.GetKeyDown(KeyCode.R);
-
-        if (rotatePressed)
+        if (Keyboard.current.rKey.wasPressedThisFrame)
         {
             currentRotation = (currentRotation + 90) % 360;
             previewObject.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
@@ -143,15 +131,11 @@ public class PlacementController : MonoBehaviour
     }
 
     /// <summary>
-    /// Handles placement input (left mouse click).
+    /// Handles placement input — left mouse button places the item.
     /// </summary>
     private void HandlePlacementInput()
     {
-        bool clickPressed = Mouse.current != null
-            ? Mouse.current.leftButton.wasPressedThisFrame
-            : Input.GetMouseButtonDown(0);
-
-        if (clickPressed && canPlace)
+        if (Mouse.current.leftButton.wasPressedThisFrame && canPlace)
         {
             PlaceItem();
         }
@@ -164,14 +148,11 @@ public class PlacementController : MonoBehaviour
     {
         Vector2Int adjustedSize = GetAdjustedSize(selectedItem.Size, currentRotation);
 
-        // Mark area as occupied
         gridManager.MarkAreaOccupied(previewGridPosition, adjustedSize);
 
-        // Create the placed object
         Vector3 worldPosition = gridManager.GridToWorld(previewGridPosition);
         GameObject placedObject = Instantiate(selectedItem.Prefab, worldPosition, Quaternion.Euler(0, currentRotation, 0));
 
-        // Create and register the placed item
         PlacedItem placedItem = new PlacedItem(
             selectedItem.ItemId,
             previewGridPosition,
@@ -181,21 +162,17 @@ public class PlacementController : MonoBehaviour
         );
 
         gridManager.RegisterPlacedItem(previewGridPosition, placedItem);
-
-        // Invoke event or callback
         OnItemPlaced?.Invoke(placedItem);
     }
 
     /// <summary>
     /// Calculates the adjusted size based on rotation.
-    /// For 90° and 270° rotations, width and height are swapped.
+    /// For 90 and 270 degree rotations, width and height are swapped.
     /// </summary>
     private Vector2Int GetAdjustedSize(Vector2Int originalSize, int rotation)
     {
         if (rotation == 90 || rotation == 270)
-        {
             return new Vector2Int(originalSize.y, originalSize.x);
-        }
         return originalSize;
     }
 
@@ -214,22 +191,10 @@ public class PlacementController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Gets the currently selected item.
-    /// </summary>
     public PlaceableItem GetSelectedItem() => selectedItem;
-
-    /// <summary>
-    /// Gets the current rotation angle.
-    /// </summary>
     public int GetCurrentRotation() => currentRotation;
-
-    /// <summary>
-    /// Gets whether placement is currently valid.
-    /// </summary>
     public bool CanPlace => canPlace;
 
-    // Events
     public delegate void ItemPlacedDelegate(PlacedItem item);
     public delegate void ItemRemovedDelegate(PlacedItem item);
 
