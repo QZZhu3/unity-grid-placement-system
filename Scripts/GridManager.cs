@@ -175,9 +175,9 @@ public class GridManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Visualizes the grid in the scene editor for debugging.
+    /// Visualizes the grid in the scene editor for debugging (only when selected).
     /// </summary>
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
         if (!Application.isPlaying)
             return;
