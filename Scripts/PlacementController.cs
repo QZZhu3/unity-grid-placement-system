@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 /// Controls the placement system, handling item selection, preview display,
 /// grid snapping via raycast, validity checking, and placement confirmation.
 /// Uses the New Input System (UnityEngine.InputSystem).
+/// Supports an optional OnPlacementValidation hook for inventory quantity gating.
 /// </summary>
 public class PlacementController : MonoBehaviour
 {
@@ -81,11 +82,11 @@ public class PlacementController : MonoBehaviour
         previewObject = Instantiate(selectedItem.Prefab);
         previewComponent = previewObject.AddComponent<PlacementPreview>();
 
-        // Disable colliders on preview
+        // Disable colliders on preview so raycasts pass through to the ground
         foreach (Collider col in previewObject.GetComponentsInChildren<Collider>())
             col.enabled = false;
 
-        // Disable scripts on preview
+        // Disable other scripts on preview
         foreach (MonoBehaviour script in previewObject.GetComponentsInChildren<MonoBehaviour>())
         {
             if (script != previewComponent)
@@ -95,6 +96,7 @@ public class PlacementController : MonoBehaviour
 
     /// <summary>
     /// Updates the preview position based on mouse position and grid snapping.
+    /// Also checks inventory quantity via the OnPlacementValidation delegate.
     /// </summary>
     private void UpdatePreviewPosition()
     {
@@ -105,7 +107,14 @@ public class PlacementController : MonoBehaviour
         {
             previewGridPosition = gridManager.WorldToGrid(hit.point);
             Vector2Int adjustedSize = GetAdjustedSize(selectedItem.Size, currentRotation);
-            canPlace = gridManager.IsAreaAvailable(previewGridPosition, adjustedSize);
+
+            // Check grid availability
+            bool gridAvailable = gridManager.IsAreaAvailable(previewGridPosition, adjustedSize);
+
+            // Check inventory quantity via validation hook (returns true if no hook is registered)
+            bool inventoryAvailable = OnPlacementValidation == null || OnPlacementValidation.Invoke(selectedItem);
+
+            canPlace = gridAvailable && inventoryAvailable;
 
             Vector3 previewWorldPosition = gridManager.GridToWorld(previewGridPosition);
             previewObject.transform.position = previewWorldPosition;
@@ -195,9 +204,24 @@ public class PlacementController : MonoBehaviour
     public int GetCurrentRotation() => currentRotation;
     public bool CanPlace => canPlace;
 
+    // Delegates and Events
     public delegate void ItemPlacedDelegate(PlacedItem item);
     public delegate void ItemRemovedDelegate(PlacedItem item);
+    public delegate bool PlacementValidationDelegate(PlaceableItem item);
 
+    /// <summary>
+    /// Fires after an item is successfully placed on the grid.
+    /// </summary>
     public event ItemPlacedDelegate OnItemPlaced;
+
+    /// <summary>
+    /// Fires after an item is removed from the grid.
+    /// </summary>
     public event ItemRemovedDelegate OnItemRemoved;
+
+    /// <summary>
+    /// Optional validation hook. Subscribe to add custom placement conditions
+    /// (e.g., inventory quantity check). Return false to block placement.
+    /// </summary>
+    public PlacementValidationDelegate OnPlacementValidation;
 }
