@@ -16,7 +16,18 @@ public class GridManager : MonoBehaviour
     [SerializeField] private Vector3 gridOrigin = Vector3.zero;
 
     private bool[,] occupancyGrid;
-    private Dictionary<Vector2Int, PlacedItem> placedItems = new Dictionary<Vector2Int, PlacedItem>();
+    private Dictionary<Vector2Int, PlacedItem> placedItems;
+
+    // Guaranteed-safe accessor — initialises on first use if Awake hasn't run yet
+    private Dictionary<Vector2Int, PlacedItem> PlacedItems
+    {
+        get
+        {
+            if (placedItems == null)
+                placedItems = new Dictionary<Vector2Int, PlacedItem>();
+            return placedItems;
+        }
+    }
 
     // ── Public read-only properties ───────────────────────────────────────────
     public int GridWidth  => gridWidth;
@@ -29,7 +40,7 @@ public class GridManager : MonoBehaviour
     private void InitializeGrid()
     {
         occupancyGrid = new bool[gridWidth, gridHeight];
-        placedItems   = new Dictionary<Vector2Int, PlacedItem>();
+        placedItems   = new Dictionary<Vector2Int, PlacedItem>();  // reset on start / ClearGrid
     }
 
     // ── Coordinate conversion ─────────────────────────────────────────────────
@@ -111,10 +122,10 @@ public class GridManager : MonoBehaviour
 
     // ── PlacedItem registry ───────────────────────────────────────────────────
 
-    public void RegisterPlacedItem(Vector2Int pos, PlacedItem item)   => placedItems[pos] = item;
-    public void UnregisterPlacedItem(Vector2Int pos)                  => placedItems.Remove(pos);
-    public PlacedItem GetPlacedItem(Vector2Int pos)                   => placedItems.TryGetValue(pos, out var item) ? item : null;
-    public Dictionary<Vector2Int, PlacedItem> GetAllPlacedItems()     => new Dictionary<Vector2Int, PlacedItem>(placedItems);
+    public void RegisterPlacedItem(Vector2Int pos, PlacedItem item)   => PlacedItems[pos] = item;
+    public void UnregisterPlacedItem(Vector2Int pos)                  => PlacedItems.Remove(pos);
+    public PlacedItem GetPlacedItem(Vector2Int pos)                   => PlacedItems.TryGetValue(pos, out var item) ? item : null;
+    public Dictionary<Vector2Int, PlacedItem> GetAllPlacedItems()     => new Dictionary<Vector2Int, PlacedItem>(PlacedItems);
 
     public void ClearGrid() => InitializeGrid();
 
