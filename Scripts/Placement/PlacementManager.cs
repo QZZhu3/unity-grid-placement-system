@@ -25,6 +25,13 @@ public class PlacementManager : MonoBehaviour
     private Vector3         originalWorldPosition;  // restore point on cancel
     private int             originalRotation;
 
+    /// <summary>
+    /// Frame counter set after a placement is confirmed.
+    /// Prevents the same left-click that placed an item from immediately picking it back up.
+    /// </summary>
+    private int             placementCooldownFrames = 0;
+    private const int       PlacementCooldown = 2;  // frames to ignore pick-up after placement
+
     private IInputController Input => mouseInput;   // access via interface
 
     // ── Events ────────────────────────────────────────────────────────────────
@@ -52,6 +59,13 @@ public class PlacementManager : MonoBehaviour
 
     private void Update()
     {
+        // Count down the post-placement cooldown
+        if (placementCooldownFrames > 0)
+        {
+            placementCooldownFrames--;
+            return;
+        }
+
         // Poll for pick-up clicks on placed objects when nothing is being dragged
         if (activeDraggable == null && Input.PickUpPressed)
             TryPickUpAtCursor();
@@ -156,6 +170,11 @@ public class PlacementManager : MonoBehaviour
         gridManager.RegisterPlacedItem(gridPos, placed);
 
         CleanupDraggable(draggable);
+
+        // Block pick-up for a couple of frames so this same click doesn't immediately
+        // pick up the object that was just placed.
+        placementCooldownFrames = PlacementCooldown;
+
         OnItemPlaced?.Invoke(placed);
     }
 
