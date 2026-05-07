@@ -2,236 +2,172 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// Manages the grid system for placement, including world-to-grid conversion,
-/// occupancy tracking, and area validation.
+/// Owns the occupancy grid, world↔grid coordinate conversion, and
+/// placed-item registration. This is the single source of truth for
+/// what cells are free or occupied.
+///
+/// GridManager has no knowledge of input, UI, dragging, or validation logic.
 /// </summary>
 public class GridManager : MonoBehaviour
 {
-    [SerializeField] private int gridWidth = 10;
-    [SerializeField] private int gridHeight = 10;
+    [SerializeField] private int gridWidth = 20;
+    [SerializeField] private int gridHeight = 20;
     [SerializeField] private float cellSize = 1f;
     [SerializeField] private Vector3 gridOrigin = Vector3.zero;
 
     private bool[,] occupancyGrid;
     private Dictionary<Vector2Int, PlacedItem> placedItems;
 
-    public int GridWidth => gridWidth;
+    // ── Public read-only properties ───────────────────────────────────────────
+    public int GridWidth  => gridWidth;
     public int GridHeight => gridHeight;
     public float CellSize => cellSize;
     public Vector3 GridOrigin => gridOrigin;
 
-    private void Awake()
-    {
-        InitializeGrid();
-    }
+    private void Awake() => InitializeGrid();
 
-    /// <summary>
-    /// Initializes the occupancy grid and placed items dictionary.
-    /// </summary>
     private void InitializeGrid()
     {
         occupancyGrid = new bool[gridWidth, gridHeight];
-        placedItems = new Dictionary<Vector2Int, PlacedItem>();
+        placedItems   = new Dictionary<Vector2Int, PlacedItem>();
     }
 
+    // ── Coordinate conversion ─────────────────────────────────────────────────
+
     /// <summary>
-    /// Converts world position to grid coordinates.
+    /// Converts a world position to the nearest grid cell coordinate.
     /// </summary>
     public Vector2Int WorldToGrid(Vector3 worldPosition)
     {
-        Vector3 localPosition = worldPosition - gridOrigin;
-        int gridX = Mathf.RoundToInt(localPosition.x / cellSize);
-        int gridZ = Mathf.RoundToInt(localPosition.z / cellSize);
-        return new Vector2Int(gridX, gridZ);
+        Vector3 local = worldPosition - gridOrigin;
+        int x = Mathf.FloorToInt(local.x / cellSize);
+        int z = Mathf.FloorToInt(local.z / cellSize);
+        return new Vector2Int(x, z);
     }
 
     /// <summary>
-    /// Converts grid coordinates to world position (center of cell).
+    /// Returns the world-space centre of a grid cell.
     /// </summary>
-    public Vector3 GridToWorld(Vector2Int gridPosition)
+    public Vector3 GridToWorld(Vector2Int gridPos)
     {
-        Vector3 worldPosition = gridOrigin;
-        worldPosition.x += gridPosition.x * cellSize + cellSize * 0.5f;
-        worldPosition.z += gridPosition.y * cellSize + cellSize * 0.5f;
-        return worldPosition;
+        return gridOrigin + new Vector3(
+            gridPos.x * cellSize + cellSize * 0.5f,
+            0f,
+            gridPos.y * cellSize + cellSize * 0.5f
+        );
+    }
+
+    // ── Bounds checks ─────────────────────────────────────────────────────────
+
+    public bool IsWithinBounds(Vector2Int pos) =>
+        pos.x >= 0 && pos.x < gridWidth && pos.y >= 0 && pos.y < gridHeight;
+
+    public bool IsAreaWithinBounds(Vector2Int pos, Vector2Int size) =>
+        pos.x >= 0 && pos.x + size.x <= gridWidth &&
+        pos.y >= 0 && pos.y + size.y <= gridHeight;
+
+    // ── Occupancy queries ─────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Returns true if the cell is occupied or out of bounds.
+    /// </summary>
+    public bool IsCellOccupied(Vector2Int pos)
+    {
+        if (!IsWithinBounds(pos)) return true;
+        return occupancyGrid[pos.x, pos.y];
     }
 
     /// <summary>
-    /// Checks if a grid position is within bounds.
+    /// Returns true if every cell in the rectangular area is free and in bounds.
     /// </summary>
-    public bool IsWithinBounds(Vector2Int gridPosition)
+    public bool IsAreaAvailable(Vector2Int pos, Vector2Int size)
     {
-        return gridPosition.x >= 0 && gridPosition.x < gridWidth &&
-               gridPosition.y >= 0 && gridPosition.y < gridHeight;
-    }
+        if (!IsAreaWithinBounds(pos, size)) return false;
 
-    /// <summary>
-    /// Checks if a rectangular area is within bounds.
-    /// </summary>
-    public bool IsAreaWithinBounds(Vector2Int gridPosition, Vector2Int size)
-    {
-        return gridPosition.x >= 0 && gridPosition.x + size.x <= gridWidth &&
-               gridPosition.y >= 0 && gridPosition.y + size.y <= gridHeight;
-    }
-
-    /// <summary>
-    /// Checks if a specific cell is occupied.
-    /// </summary>
-    public bool IsCellOccupied(Vector2Int gridPosition)
-    {
-        if (!IsWithinBounds(gridPosition))
-            return true; // Treat out-of-bounds as occupied
-
-        return occupancyGrid[gridPosition.x, gridPosition.y];
-    }
-
-    /// <summary>
-    /// Checks if an entire rectangular area is available for placement.
-    /// </summary>
-    public bool IsAreaAvailable(Vector2Int gridPosition, Vector2Int size)
-    {
-        if (!IsAreaWithinBounds(gridPosition, size))
-            return false;
-
-        for (int x = gridPosition.x; x < gridPosition.x + size.x; x++)
-        {
-            for (int z = gridPosition.y; z < gridPosition.y + size.y; z++)
-            {
-                if (occupancyGrid[x, z])
-                    return false;
-            }
-        }
+        for (int x = pos.x; x < pos.x + size.x; x++)
+            for (int z = pos.y; z < pos.y + size.y; z++)
+                if (occupancyGrid[x, z]) return false;
 
         return true;
     }
 
-    /// <summary>
-    /// Marks an area as occupied on the grid.
-    /// </summary>
-    public void MarkAreaOccupied(Vector2Int gridPosition, Vector2Int size)
+    // ── Occupancy mutation ────────────────────────────────────────────────────
+
+    public void MarkAreaOccupied(Vector2Int pos, Vector2Int size)
     {
-        for (int x = gridPosition.x; x < gridPosition.x + size.x; x++)
-        {
-            for (int z = gridPosition.y; z < gridPosition.y + size.y; z++)
-            {
-                occupancyGrid[x, z] = true;
-            }
-        }
+        for (int x = pos.x; x < pos.x + size.x; x++)
+            for (int z = pos.y; z < pos.y + size.y; z++)
+                if (IsWithinBounds(new Vector2Int(x, z)))
+                    occupancyGrid[x, z] = true;
     }
 
-    /// <summary>
-    /// Marks an area as unoccupied on the grid.
-    /// </summary>
-    public void MarkAreaUnoccupied(Vector2Int gridPosition, Vector2Int size)
+    public void MarkAreaUnoccupied(Vector2Int pos, Vector2Int size)
     {
-        for (int x = gridPosition.x; x < gridPosition.x + size.x; x++)
-        {
-            for (int z = gridPosition.y; z < gridPosition.y + size.y; z++)
-            {
-                occupancyGrid[x, z] = false;
-            }
-        }
+        for (int x = pos.x; x < pos.x + size.x; x++)
+            for (int z = pos.y; z < pos.y + size.y; z++)
+                if (IsWithinBounds(new Vector2Int(x, z)))
+                    occupancyGrid[x, z] = false;
     }
 
-    /// <summary>
-    /// Registers a placed item in the tracking dictionary.
-    /// </summary>
-    public void RegisterPlacedItem(Vector2Int gridPosition, PlacedItem item)
-    {
-        placedItems[gridPosition] = item;
-    }
+    // ── PlacedItem registry ───────────────────────────────────────────────────
 
-    /// <summary>
-    /// Unregisters a placed item from the tracking dictionary.
-    /// </summary>
-    public void UnregisterPlacedItem(Vector2Int gridPosition)
-    {
-        if (placedItems.ContainsKey(gridPosition))
-            placedItems.Remove(gridPosition);
-    }
+    public void RegisterPlacedItem(Vector2Int pos, PlacedItem item)   => placedItems[pos] = item;
+    public void UnregisterPlacedItem(Vector2Int pos)                  => placedItems.Remove(pos);
+    public PlacedItem GetPlacedItem(Vector2Int pos)                   => placedItems.TryGetValue(pos, out var item) ? item : null;
+    public Dictionary<Vector2Int, PlacedItem> GetAllPlacedItems()     => new Dictionary<Vector2Int, PlacedItem>(placedItems);
 
-    /// <summary>
-    /// Gets a placed item at a specific grid position.
-    /// </summary>
-    public PlacedItem GetPlacedItem(Vector2Int gridPosition)
-    {
-        return placedItems.ContainsKey(gridPosition) ? placedItems[gridPosition] : null;
-    }
+    public void ClearGrid() => InitializeGrid();
 
-    /// <summary>
-    /// Gets all placed items.
-    /// </summary>
-    public Dictionary<Vector2Int, PlacedItem> GetAllPlacedItems()
-    {
-        return new Dictionary<Vector2Int, PlacedItem>(placedItems);
-    }
+    // ── Editor Gizmos ─────────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Clears all placements and resets the grid.
-    /// </summary>
-    public void ClearGrid()
-    {
-        InitializeGrid();
-    }
-
-    /// <summary>
-    /// Visualizes the grid in the scene editor for debugging (only when selected).
-    /// </summary>
     private void OnDrawGizmosSelected()
     {
-        if (!Application.isPlaying)
-            return;
-
-        Gizmos.color = Color.white;
-        
-        // Draw grid lines
+        // Grid lines (always visible in editor)
+        Gizmos.color = new Color(1f, 1f, 1f, 0.2f);
         for (int x = 0; x <= gridWidth; x++)
         {
-            Vector3 start = gridOrigin + new Vector3(x * cellSize, 0, 0);
-            Vector3 end = gridOrigin + new Vector3(x * cellSize, 0, gridHeight * cellSize);
-            Gizmos.DrawLine(start, end);
+            Gizmos.DrawLine(
+                gridOrigin + new Vector3(x * cellSize, 0.01f, 0),
+                gridOrigin + new Vector3(x * cellSize, 0.01f, gridHeight * cellSize));
         }
-
         for (int z = 0; z <= gridHeight; z++)
         {
-            Vector3 start = gridOrigin + new Vector3(0, 0, z * cellSize);
-            Vector3 end = gridOrigin + new Vector3(gridWidth * cellSize, 0, z * cellSize);
-            Gizmos.DrawLine(start, end);
+            Gizmos.DrawLine(
+                gridOrigin + new Vector3(0, 0.01f, z * cellSize),
+                gridOrigin + new Vector3(gridWidth * cellSize, 0.01f, z * cellSize));
         }
 
-        // Draw occupied cells
-        Gizmos.color = new Color(1, 0, 0, 0.3f);
+        // Occupied cells (play mode only)
+        if (!Application.isPlaying || occupancyGrid == null) return;
+
+        Gizmos.color = new Color(1f, 0f, 0f, 0.25f);
         for (int x = 0; x < gridWidth; x++)
-        {
             for (int z = 0; z < gridHeight; z++)
-            {
                 if (occupancyGrid[x, z])
-                {
-                    Vector3 cellCenter = GridToWorld(new Vector2Int(x, z));
-                    Gizmos.DrawCube(cellCenter, new Vector3(cellSize * 0.9f, 0.1f, cellSize * 0.9f));
-                }
-            }
-        }
+                    Gizmos.DrawCube(GridToWorld(new Vector2Int(x, z)),
+                        new Vector3(cellSize * 0.9f, 0.05f, cellSize * 0.9f));
     }
 }
 
+// ── PlacedItem data class ──────────────────────────────────────────────────────
+
 /// <summary>
-/// Represents a placed item on the grid.
+/// Immutable record of an item that has been placed on the grid.
 /// </summary>
 public class PlacedItem
 {
-    public string ItemId { get; set; }
-    public Vector2Int GridPosition { get; set; }
-    public Vector2Int Size { get; set; }
-    public int Rotation { get; set; } // 0, 90, 180, 270
-    public GameObject GameObject { get; set; }
+    public string      ItemId       { get; }
+    public Vector2Int  GridPosition { get; set; }   // mutable for pick-up-and-move
+    public Vector2Int  Size         { get; set; }   // mutable for rotation changes
+    public int         Rotation     { get; set; }
+    public GameObject  GameObject   { get; }
 
-    public PlacedItem(string itemId, Vector2Int gridPosition, Vector2Int size, int rotation, GameObject gameObject)
+    public PlacedItem(string itemId, Vector2Int gridPosition, Vector2Int size, int rotation, GameObject go)
     {
-        ItemId = itemId;
+        ItemId       = itemId;
         GridPosition = gridPosition;
-        Size = size;
-        Rotation = rotation;
-        GameObject = gameObject;
+        Size         = size;
+        Rotation     = rotation;
+        GameObject   = go;
     }
 }
