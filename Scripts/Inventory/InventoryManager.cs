@@ -9,7 +9,14 @@ public class InventoryManager : MonoBehaviour
 {
     [SerializeField] private List<InventorySlot> startingItems = new List<InventorySlot>();
 
-    private Dictionary<string, InventorySlot> inventory = new Dictionary<string, InventorySlot>();
+    private Dictionary<string, InventorySlot> inventory;
+
+    private void OnEnable()
+    {
+        // Ensure dictionary is always initialized before any other script can call us
+        if (inventory == null)
+            inventory = new Dictionary<string, InventorySlot>();
+    }
 
     // Events
     public delegate void InventoryChangedDelegate(string itemId, int newQuantity);
@@ -18,6 +25,8 @@ public class InventoryManager : MonoBehaviour
 
     private void Awake()
     {
+        if (inventory == null)
+            inventory = new Dictionary<string, InventorySlot>();
         InitializeInventory();
     }
 
