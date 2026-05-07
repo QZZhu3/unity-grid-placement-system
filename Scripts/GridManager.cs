@@ -16,7 +16,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private Vector3 gridOrigin = Vector3.zero;
 
     private bool[,] occupancyGrid;
-    private Dictionary<Vector2Int, PlacedItem> placedItems;
+    private Dictionary<Vector2Int, PlacedItem> placedItems = new Dictionary<Vector2Int, PlacedItem>();
 
     // ── Public read-only properties ───────────────────────────────────────────
     public int GridWidth  => gridWidth;
