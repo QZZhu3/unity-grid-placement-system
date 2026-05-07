@@ -40,7 +40,7 @@ public class ReturnBasketZone : MonoBehaviour, IPointerEnterHandler, IPointerExi
     private void HandleDragEnded(DraggableItem item)
     {
         SetVisible(false);
-        isHovering = false;
+        SetHoverState(false);
     }
 
     private void SetVisible(bool visible)
