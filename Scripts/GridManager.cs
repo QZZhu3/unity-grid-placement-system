@@ -152,22 +152,56 @@ public class GridManager : MonoBehaviour
 // ── PlacedItem data class ──────────────────────────────────────────────────────
 
 /// <summary>
-/// Immutable record of an item that has been placed on the grid.
+/// Record of an item that has been placed on the grid.
+///
+/// OccupiedCells is stored explicitly (not recomputed from Size) so that:
+///   1. Non-rectangular footprints are supported in future.
+///   2. Save/load can serialise the exact cell list without recomputation.
+///   3. Pick-up-and-move can free the correct cells even after rotation.
 /// </summary>
 public class PlacedItem
 {
-    public string      ItemId       { get; }
-    public Vector2Int  GridPosition { get; set; }   // mutable for pick-up-and-move
-    public Vector2Int  Size         { get; set; }   // mutable for rotation changes
-    public int         Rotation     { get; set; }
-    public GameObject  GameObject   { get; }
+    public string             ItemId        { get; }
+    public Vector2Int         GridPosition  { get; set; }   // mutable for pick-up-and-move
+    public Vector2Int         Size          { get; set; }   // mutable for rotation changes
+    public int                Rotation      { get; set; }
+    public GameObject         GameObject    { get; }
+
+    /// <summary>
+    /// Every grid cell this item currently occupies.
+    /// Rebuilt automatically in the constructor and via RefreshOccupiedCells().
+    /// </summary>
+    public List<Vector2Int>   OccupiedCells { get; private set; }
 
     public PlacedItem(string itemId, Vector2Int gridPosition, Vector2Int size, int rotation, GameObject go)
     {
-        ItemId       = itemId;
-        GridPosition = gridPosition;
-        Size         = size;
-        Rotation     = rotation;
-        GameObject   = go;
+        ItemId        = itemId;
+        GridPosition  = gridPosition;
+        Size          = size;
+        Rotation      = rotation;
+        GameObject    = go;
+        OccupiedCells = ComputeCells(gridPosition, size);
+    }
+
+    /// <summary>
+    /// Recomputes OccupiedCells after GridPosition or Size changes.
+    /// Call this whenever the item is moved or rotated.
+    /// </summary>
+    public void RefreshOccupiedCells()
+    {
+        OccupiedCells = ComputeCells(GridPosition, Size);
+    }
+
+    /// <summary>
+    /// Builds the list of all cells covered by a rectangular footprint.
+    /// Override this method in a subclass to support non-rectangular shapes.
+    /// </summary>
+    public static List<Vector2Int> ComputeCells(Vector2Int origin, Vector2Int size)
+    {
+        var cells = new List<Vector2Int>(size.x * size.y);
+        for (int x = origin.x; x < origin.x + size.x; x++)
+            for (int z = origin.y; z < origin.y + size.y; z++)
+                cells.Add(new Vector2Int(x, z));
+        return cells;
     }
 }

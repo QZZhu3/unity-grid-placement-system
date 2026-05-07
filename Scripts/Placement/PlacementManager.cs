@@ -150,10 +150,11 @@ public class PlacementManager : MonoBehaviour
         PlacedItem placed;
         if (pickedUpItem != null)
         {
-            // Updating an existing item
+            // Updating an existing item — refresh OccupiedCells to reflect new position/rotation
             pickedUpItem.GridPosition = gridPos;
             pickedUpItem.Size         = footprint;
             pickedUpItem.Rotation     = rotation;
+            pickedUpItem.RefreshOccupiedCells();
             placed = pickedUpItem;
         }
         else
