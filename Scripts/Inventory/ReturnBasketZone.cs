@@ -18,7 +18,6 @@ public class ReturnBasketZone : MonoBehaviour, IPointerEnterHandler, IPointerExi
     [SerializeField] private float hoverScale = 1.1f;
 
     private PlacementManager placementManager;
-    private bool isHovering = false;
 
     private void Start()
     {
@@ -35,7 +34,7 @@ public class ReturnBasketZone : MonoBehaviour, IPointerEnterHandler, IPointerExi
     private void HandleDragStarted(DraggableItem item)
     {
         SetVisible(true);
-        SetHoverState(false);
+        SetHoverState(false); // reset highlight
     }
 
     private void HandleDragEnded(DraggableItem item)
@@ -63,7 +62,6 @@ public class ReturnBasketZone : MonoBehaviour, IPointerEnterHandler, IPointerExi
     {
         if (placementManager != null && placementManager.IsDragging)
         {
-            isHovering = true;
             SetHoverState(true);
             placementManager.SetHoveringReturnBasket(true);
         }
@@ -73,7 +71,6 @@ public class ReturnBasketZone : MonoBehaviour, IPointerEnterHandler, IPointerExi
     {
         if (placementManager != null && placementManager.IsDragging)
         {
-            isHovering = false;
             SetHoverState(false);
             placementManager.SetHoveringReturnBasket(false);
         }
