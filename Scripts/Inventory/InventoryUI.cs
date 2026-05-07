@@ -5,40 +5,39 @@ using System.Collections.Generic;
 
 /// <summary>
 /// Manages the inventory UI panel, dynamically building a grid of slot buttons
-/// from the InventoryManager data. Bridges UI interaction with PlacementController.
+/// from the InventoryManager data. Bridges UI interaction with PlacementManager.
 /// </summary>
 public class InventoryUI : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private InventoryManager inventoryManager;
-    [SerializeField] private PlacementController placementController;
+    [SerializeField] private PlacementManager placementManager;
 
     [Header("UI Elements")]
     [SerializeField] private Transform slotContainer;
     [SerializeField] private GameObject slotPrefab;
     [SerializeField] private TextMeshProUGUI selectedItemText;
-    [SerializeField] private Button deselectButton;
 
     private List<InventorySlotUI> slotUIs = new List<InventorySlotUI>();
     private InventorySlotUI currentlySelectedSlotUI;
+    private PlaceableItem currentSelectedItemData;
 
     private void Start()
     {
         if (inventoryManager == null)
             inventoryManager = FindAnyObjectByType<InventoryManager>();
 
-        if (placementController == null)
-            placementController = FindAnyObjectByType<PlacementController>();
+        if (placementManager == null)
+            placementManager = FindAnyObjectByType<PlacementManager>();
 
         // Subscribe to inventory events
         inventoryManager.OnInventoryChanged += HandleInventoryChanged;
         inventoryManager.OnInventoryRefreshed += BuildSlots;
 
-        // Subscribe to placement events to reduce quantity
-        placementController.OnItemPlaced += HandleItemPlaced;
-
-        if (deselectButton != null)
-            deselectButton.onClick.AddListener(DeselectItem);
+        // Subscribe to placement events to handle deselect on pick-up or placement end
+        placementManager.OnItemPlaced += HandleItemPlaced;
+        placementManager.OnItemPickedUp += HandleItemPickedUp;
+        placementManager.OnPlacementCancelled += HandlePlacementCancelled;
 
         BuildSlots();
     }
@@ -78,6 +77,9 @@ public class InventoryUI : MonoBehaviour
     private void OnSlotClicked(InventorySlot slot)
     {
         if (slot.IsEmpty) return;
+        
+        // If already dragging something, ignore or cancel first
+        if (placementManager.IsDragging) return;
 
         // Deselect previous
         if (currentlySelectedSlotUI != null)
@@ -88,13 +90,15 @@ public class InventoryUI : MonoBehaviour
         if (currentlySelectedSlotUI != null)
             currentlySelectedSlotUI.SetSelected(true);
 
-        // Tell PlacementController to start placing this item
-        placementController.SelectItem(slot.Item);
+        currentSelectedItemData = slot.Item;
+
+        // Tell PlacementManager to start placing this item
+        placementManager.BeginPlacement(slot.Item);
         UpdateSelectedItemText();
     }
 
     /// <summary>
-    /// Deselects the current item and cancels placement.
+    /// Deselects the current item.
     /// </summary>
     public void DeselectItem()
     {
@@ -103,23 +107,59 @@ public class InventoryUI : MonoBehaviour
             currentlySelectedSlotUI.SetSelected(false);
             currentlySelectedSlotUI = null;
         }
-
-        placementController.DeselectItem();
+        
+        currentSelectedItemData = null;
         UpdateSelectedItemText();
     }
 
     /// <summary>
-    /// Called when an item is placed — removes one from inventory.
+    /// Called when an item is placed.
     /// </summary>
     private void HandleItemPlaced(PlacedItem placedItem)
     {
-        inventoryManager.RemoveItem(placedItem.ItemId, 1);
-
-        // If quantity reached 0, deselect automatically
-        if (!inventoryManager.HasItem(placedItem.ItemId))
+        // If we were placing a new item from inventory, check if we need to deselect
+        if (currentSelectedItemData != null && currentSelectedItemData.ItemId == placedItem.ItemId)
+        {
+            // If quantity reached 0, deselect automatically
+            if (!inventoryManager.HasItem(placedItem.ItemId))
+            {
+                DeselectItem();
+            }
+            else
+            {
+                // Continue placing the same item type if we still have some left
+                // Update the text to reflect the new quantity
+                UpdateSelectedItemText();
+                
+                // Wait for the next frame to begin placement again to avoid input conflicts
+                StartCoroutine(BeginPlacementNextFrame(currentSelectedItemData));
+            }
+        }
+        else
         {
             DeselectItem();
         }
+    }
+    
+    private System.Collections.IEnumerator BeginPlacementNextFrame(PlaceableItem itemData)
+    {
+        yield return null;
+        if (inventoryManager.HasItem(itemData.ItemId))
+        {
+            placementManager.BeginPlacement(itemData);
+        }
+    }
+
+    private void HandleItemPickedUp(PlacedItem placedItem)
+    {
+        // When picking up an item, clear selection from inventory UI
+        DeselectItem();
+    }
+
+    private void HandlePlacementCancelled(PlacedItem placedItem)
+    {
+        // When placement is cancelled, clear selection
+        DeselectItem();
     }
 
     /// <summary>
@@ -129,6 +169,11 @@ public class InventoryUI : MonoBehaviour
     {
         InventorySlotUI slotUI = slotUIs.Find(s => s.Slot?.Item?.ItemId == itemId);
         slotUI?.Refresh();
+        
+        if (currentSelectedItemData != null && currentSelectedItemData.ItemId == itemId)
+        {
+            UpdateSelectedItemText();
+        }
     }
 
     /// <summary>
@@ -138,15 +183,14 @@ public class InventoryUI : MonoBehaviour
     {
         if (selectedItemText == null) return;
 
-        PlaceableItem selected = placementController.GetSelectedItem();
-        if (selected == null)
+        if (currentSelectedItemData == null)
         {
             selectedItemText.text = "No item selected";
         }
         else
         {
-            int qty = inventoryManager.GetQuantity(selected.ItemId);
-            selectedItemText.text = $"Placing: {selected.DisplayName}  ({qty} left)";
+            int qty = inventoryManager.GetQuantity(currentSelectedItemData.ItemId);
+            selectedItemText.text = $"Placing: {currentSelectedItemData.DisplayName}  ({qty} left)";
         }
     }
 
@@ -158,7 +202,11 @@ public class InventoryUI : MonoBehaviour
             inventoryManager.OnInventoryRefreshed -= BuildSlots;
         }
 
-        if (placementController != null)
-            placementController.OnItemPlaced -= HandleItemPlaced;
+        if (placementManager != null)
+        {
+            placementManager.OnItemPlaced -= HandleItemPlaced;
+            placementManager.OnItemPickedUp -= HandleItemPickedUp;
+            placementManager.OnPlacementCancelled -= HandlePlacementCancelled;
+        }
     }
 }

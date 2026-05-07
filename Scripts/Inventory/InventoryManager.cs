@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 /// <summary>
 /// Manages the player's inventory, storing PlaceableItems with quantities.
-/// Fires events when inventory changes so the UI can update reactively.
+/// Pure data and logic layer. Fires events when inventory changes.
 /// </summary>
 public class InventoryManager : MonoBehaviour
 {
