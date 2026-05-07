@@ -38,6 +38,7 @@ public class PlacementManager : MonoBehaviour
 
     public delegate void PlacementDelegate(PlacedItem item);
     public delegate void PickUpDelegate(PlacedItem item);
+    public delegate void DragDelegate(DraggableItem item);
 
     /// <summary>Fired after an item is successfully placed or moved.</summary>
     public event PlacementDelegate OnItemPlaced;
@@ -47,6 +48,14 @@ public class PlacementManager : MonoBehaviour
 
     /// <summary>Fired when a drag is cancelled and the item returns to its origin.</summary>
     public event PlacementDelegate OnPlacementCancelled;
+
+    /// <summary>Fired when an item starts being dragged (either new or picked up).</summary>
+    public event DragDelegate OnDragStarted;
+
+    /// <summary>Fired when an item stops being dragged (placed, cancelled, or returned).</summary>
+    public event DragDelegate OnDragEnded;
+
+    private bool isHoveringReturnBasket = false;
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -129,10 +138,25 @@ public class PlacementManager : MonoBehaviour
         draggable.OnCancel  += HandleCancel;
 
         activeDraggable = draggable;
+        isHoveringReturnBasket = false;
+
+        OnDragStarted?.Invoke(activeDraggable);
+    }
+
+    public void SetHoveringReturnBasket(bool isHovering)
+    {
+        isHoveringReturnBasket = isHovering;
     }
 
     private void HandleConfirm(DraggableItem draggable, Vector2Int gridPos, int rotation)
     {
+        // Intercept confirm if hovering over the return basket
+        if (isHoveringReturnBasket)
+        {
+            ReturnToInventory(draggable);
+            return;
+        }
+
         Vector2Int footprint = draggable.GetFootprint();
 
         // Mark the new cells as occupied
@@ -205,13 +229,50 @@ public class PlacementManager : MonoBehaviour
         CleanupDraggable(draggable);
     }
 
+    private void ReturnToInventory(DraggableItem draggable)
+    {
+        // Returning is essentially cancelling the placement, but if it was an existing item,
+        // we don't want to restore it to the grid. We want to permanently remove it from the grid
+        // and let the InventoryPlacementBridge handle the inventory math.
+        
+        if (pickedUpItem != null)
+        {
+            // It was an existing item. We already freed its cells and unregistered it during PickUp.
+            // We just need to destroy the GameObject and NOT restore it.
+            // Wait, InventoryPlacementBridge adds +1 on PickUp. If we destroy it now, we shouldn't deduct.
+            // But we need to signal that it was permanently returned so other systems know.
+            // Actually, if we just Destroy the GameObject, the +1 from PickUp stays in inventory.
+            // This is perfectly correct! (Net +1 to inventory, item removed from world).
+            
+            Destroy(draggable.gameObject);
+            
+            // We don't fire OnPlacementCancelled because we don't want the bridge to deduct 1.
+            // We just let it disappear.
+        }
+        else
+        {
+            // It was a brand new item from inventory.
+            // Inventory hasn't been deducted yet (deduction happens on OnItemPlaced).
+            // So we just destroy it. (Net 0 to inventory, item removed from world).
+            Destroy(draggable.gameObject);
+        }
+
+        CleanupDraggable(draggable);
+    }
+
     private void CleanupDraggable(DraggableItem draggable)
     {
         draggable.OnConfirm -= HandleConfirm;
         draggable.OnCancel  -= HandleCancel;
+        
+        DraggableItem cachedDraggable = draggable; // cache for event
+
         DestroyImmediate(draggable);            // immediate removal so next BeginPlacement can add fresh component
         activeDraggable = null;
         pickedUpItem    = null;
+        isHoveringReturnBasket = false;
+
+        OnDragEnded?.Invoke(cachedDraggable);
     }
 
     /// <summary>
