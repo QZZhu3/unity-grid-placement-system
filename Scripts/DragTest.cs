@@ -49,7 +49,8 @@ public class DragTest : MonoBehaviour
 
     private IEnumerator BeginNextFrame()
     {
-        // Wait one frame so PlacementManager finishes cleanup before we call BeginPlacement again
+        // Wait two frames: one for PlacementManager cleanup, one for the cooldown to clear
+        yield return null;
         yield return null;
         TryBeginPlacement();
     }

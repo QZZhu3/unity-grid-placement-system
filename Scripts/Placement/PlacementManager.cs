@@ -209,7 +209,7 @@ public class PlacementManager : MonoBehaviour
     {
         draggable.OnConfirm -= HandleConfirm;
         draggable.OnCancel  -= HandleCancel;
-        Destroy(draggable);                     // remove component, keep GameObject
+        DestroyImmediate(draggable);            // immediate removal so next BeginPlacement can add fresh component
         activeDraggable = null;
         pickedUpItem    = null;
     }
