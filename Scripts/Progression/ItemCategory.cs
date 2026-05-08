@@ -37,6 +37,11 @@ public class ItemCategory : ScriptableObject
              "Leave null for top-level categories. Does not affect unlock logic.")]
     [SerializeField] private ItemCategory parentCategory;
 
+    [Header("Availability")]
+    [Tooltip("If true, this category is available from the start without any unlock requirement. " +
+             "Use for core/basic categories that should never be gated.")]
+    [SerializeField] private bool isUnlockedByDefault = false;
+
     [Header("Theme")]
     [Tooltip("Optional theme this category belongs to. " +
              "Unlocking the parent theme will also unlock this category. " +
@@ -45,12 +50,13 @@ public class ItemCategory : ScriptableObject
 
     // ── Public accessors ──────────────────────────────────────────────────────
 
-    public string          Id             => id;
-    public string          DisplayName    => displayName;
-    public string          Description    => description;
-    public Sprite          Icon           => icon;
-    public ItemCategory    ParentCategory => parentCategory;
-    public DecorationTheme Theme          => theme;
+    public string          Id                   => id;
+    public string          DisplayName          => displayName;
+    public string          Description          => description;
+    public Sprite          Icon                 => icon;
+    public bool            IsUnlockedByDefault  => isUnlockedByDefault;
+    public ItemCategory    ParentCategory       => parentCategory;
+    public DecorationTheme Theme                => theme;
 
     private void OnValidate()
     {

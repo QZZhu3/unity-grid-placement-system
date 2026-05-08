@@ -82,6 +82,14 @@ public class UnlockManager : MonoBehaviour
     /// </summary>
     public void EvaluateUnlocks()
     {
+        // 0. Default-unlocked standalone categories (no requirement needed)
+        foreach (StandaloneCategoryEntry entry in standaloneCategories)
+        {
+            if (entry.Category == null) continue;
+            if (entry.Category.IsUnlockedByDefault)
+                GrantCategoryUnlock(entry.Category);
+        }
+
         // 1. Themes (unlocking a theme cascades to its categories)
         foreach (DecorationTheme theme in allThemes)
         {
