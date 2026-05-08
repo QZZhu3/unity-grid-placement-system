@@ -42,6 +42,7 @@ public class InventoryUI : MonoBehaviour
     private readonly List<InventorySlotUI> slotUIs = new List<InventorySlotUI>();
     private InventorySlotUI  selectedSlotUI;
     private PlaceableItem    selectedItemData;
+    private bool             chainPending;     // true while BeginPlacementNextFrame is queued
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -97,6 +98,7 @@ public class InventoryUI : MonoBehaviour
         slotUIs.Clear();
         selectedSlotUI   = null;
         selectedItemData = null;
+        chainPending     = false;
 
         List<InventorySlot> slots = inventoryManager.GetAllSlots();
         foreach (InventorySlot slot in slots)
@@ -132,8 +134,9 @@ public class InventoryUI : MonoBehaviour
             selectedSlotUI.SetSelected(false);
 
         // Select the new slot
-        selectedSlotUI  = slotUIs.Find(s => s.Slot == slot);
+        selectedSlotUI   = slotUIs.Find(s => s.Slot == slot);
         selectedItemData = slot.Item;
+        chainPending     = false;
 
         if (selectedSlotUI != null)
             selectedSlotUI.SetSelected(true);
@@ -154,9 +157,11 @@ public class InventoryUI : MonoBehaviour
         {
             if (inventoryManager.HasItem(placedItem.ItemId))
             {
-                // Still have stock — chain the next placement after two frames
-                // (one for PlacementManager cleanup, one for the cooldown to clear)
+                // Still have stock — chain the next placement after two frames.
+                // Set chainPending BEFORE the coroutine so DeferredDeselectIfIdle
+                // sees it on the very next frame and does not clear the selection.
                 UpdateSelectedItemText();
+                chainPending = true;
                 StartCoroutine(BeginPlacementNextFrame(selectedItemData));
             }
             else
@@ -182,8 +187,7 @@ public class InventoryUI : MonoBehaviour
     }
 
     /// <summary>
-    /// When a pick-up drag is cancelled (ESC / programmatic), the item returns to the grid.
-    /// Clear the inventory selection.
+    /// When a new-item drag is cancelled (ESC / programmatic), clear the inventory selection.
     /// </summary>
     private void HandlePlacementCancelled(PlacedItem placedItem)
     {
@@ -197,17 +201,10 @@ public class InventoryUI : MonoBehaviour
     private void HandleDragEnded(DraggableItem draggable)
     {
         // Only deselect if we are not about to chain another placement.
-        // The chain coroutine from HandleItemPlaced will have already been queued
-        // if applicable, so we only need to deselect here for non-chain endings
-        // (basket return, cancel of a new item, etc.).
-        if (!placementManager.IsDragging)
-        {
-            // If selectedItemData is still set but we are not chaining, clear it.
-            // The coroutine sets selectedItemData before calling BeginPlacement,
-            // so if IsDragging is false here and no coroutine is running, we're done.
-            // We use a one-frame delay so the chain coroutine (if any) runs first.
+        // chainPending is set synchronously in HandleItemPlaced before this
+        // coroutine is queued, so the check is reliable.
+        if (!chainPending)
             StartCoroutine(DeferredDeselectIfIdle());
-        }
     }
 
     /// <summary>
@@ -218,7 +215,7 @@ public class InventoryUI : MonoBehaviour
     private IEnumerator DeferredDeselectIfIdle()
     {
         yield return null;
-        if (!placementManager.IsDragging)
+        if (!placementManager.IsDragging && !chainPending)
             DeselectItem();
     }
 
@@ -233,10 +230,12 @@ public class InventoryUI : MonoBehaviour
         yield return null;
         yield return null;
 
-        // Guard: inventory may have changed during the two-frame wait
-        if (itemData == null) yield break;
-        if (!inventoryManager.HasItem(itemData.ItemId)) { DeselectItem(); yield break; }
-        if (placementManager.IsDragging) yield break;
+        // Clear the pending flag now that we are about to act (or bail out)
+        chainPending = false;
+
+        if (itemData == null)                                { DeselectItem(); yield break; }
+        if (!inventoryManager.HasItem(itemData.ItemId))     { DeselectItem(); yield break; }
+        if (placementManager.IsDragging)                    yield break;
 
         placementManager.BeginPlacement(itemData);
         UpdateSelectedItemText();
@@ -248,6 +247,8 @@ public class InventoryUI : MonoBehaviour
     /// </summary>
     public void DeselectItem()
     {
+        chainPending = false;
+
         if (selectedSlotUI != null)
         {
             selectedSlotUI.SetSelected(false);
