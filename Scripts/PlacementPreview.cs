@@ -4,20 +4,71 @@ using UnityEngine;
 /// Manages the visual preview of a placeable item before it's placed.
 /// Shows green when placement is valid, red when invalid.
 /// Compatible with both URP and Built-in Render Pipeline.
+///
+/// On Awake, the original materials are captured before any preview material
+/// is applied. Call <see cref="RestoreOriginalMaterials"/> to revert the
+/// object to its pre-preview appearance (e.g. after placement is confirmed).
 /// </summary>
 public class PlacementPreview : MonoBehaviour
 {
-    private Material validMaterial;
-    private Material invalidMaterial;
+    private Material   validMaterial;
+    private Material   invalidMaterial;
     private Renderer[] renderers;
-    private bool isValid = true;
+    private bool       isValid = true;
+
+    // ── Original material storage ─────────────────────────────────────────────
+
+    /// <summary>
+    /// Per-renderer snapshot of the materials that were present before the
+    /// preview material was applied.  Index matches <c>renderers</c>.
+    /// </summary>
+    private Material[][] originalMaterials;
+
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     private void Awake()
     {
         renderers = GetComponentsInChildren<Renderer>();
+
+        // Capture originals BEFORE overwriting with preview material
+        CaptureOriginalMaterials();
+
         CreatePreviewMaterials();
         ApplyMaterial(validMaterial);
     }
+
+    // ── Original material helpers ─────────────────────────────────────────────
+
+    private void CaptureOriginalMaterials()
+    {
+        originalMaterials = new Material[renderers.Length][];
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            // Copy the array so we own the references
+            Material[] src = renderers[i].materials;
+            originalMaterials[i] = new Material[src.Length];
+            for (int j = 0; j < src.Length; j++)
+                originalMaterials[i][j] = src[j];
+        }
+    }
+
+    /// <summary>
+    /// Restores every renderer to the materials it had before the preview was applied.
+    /// Call this when placement is confirmed so the placed object looks correct.
+    /// After calling this, destroy the PlacementPreview component.
+    /// </summary>
+    public void RestoreOriginalMaterials()
+    {
+        if (originalMaterials == null) return;
+
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (renderers[i] == null) continue;
+            renderers[i].materials = originalMaterials[i];
+        }
+    }
+
+    // ── Preview material helpers ──────────────────────────────────────────────
 
     /// <summary>
     /// Creates semi-transparent materials for valid (green) and invalid (red) states.
@@ -39,7 +90,6 @@ public class PlacementPreview : MonoBehaviour
     /// </summary>
     private Shader FindCompatibleTransparentShader()
     {
-        // Try URP shaders first
         Shader urpLit = Shader.Find("Universal Render Pipeline/Lit");
         if (urpLit != null) return urpLit;
 
@@ -49,7 +99,6 @@ public class PlacementPreview : MonoBehaviour
         Shader urpUnlit = Shader.Find("Universal Render Pipeline/Unlit");
         if (urpUnlit != null) return urpUnlit;
 
-        // Fallback to Built-in Standard
         return Shader.Find("Standard");
     }
 
@@ -85,7 +134,7 @@ public class PlacementPreview : MonoBehaviour
     }
 
     /// <summary>
-    /// Applies a material to all renderers on the preview object.
+    /// Applies a preview material to all renderers on the object.
     /// </summary>
     private void ApplyMaterial(Material mat)
     {
@@ -112,7 +161,7 @@ public class PlacementPreview : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (validMaterial != null) Destroy(validMaterial);
+        if (validMaterial   != null) Destroy(validMaterial);
         if (invalidMaterial != null) Destroy(invalidMaterial);
     }
 }

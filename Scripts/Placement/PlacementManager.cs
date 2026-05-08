@@ -194,6 +194,15 @@ public class PlacementManager : MonoBehaviour
 
         gridManager.RegisterPlacedItem(gridPos, placed);
 
+        // Restore the object's original materials and remove the preview component
+        // so the placed block looks correct instead of staying green.
+        PlacementPreview preview = draggable.GetComponent<PlacementPreview>();
+        if (preview != null)
+        {
+            preview.RestoreOriginalMaterials();
+            Destroy(preview);
+        }
+
         CleanupDraggable(draggable);
 
         // Block pick-up for a couple of frames so this same click doesn't immediately
