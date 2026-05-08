@@ -23,6 +23,7 @@ public class DragTest : MonoBehaviour
         manager.OnItemPlaced         += OnItemPlaced;
         manager.OnItemPickedUp       += OnItemPickedUp;
         manager.OnPlacementCancelled += OnPlacementCancelled;
+        manager.OnDragEnded          += OnDragEnded;
 
         // Auto-start first placement
         TryBeginPlacement();
@@ -44,6 +45,14 @@ public class DragTest : MonoBehaviour
     {
         // Pick-up was cancelled — item went back to the grid.
         // Start a fresh placement if we still have stock.
+        StartCoroutine(BeginNextFrame());
+    }
+
+    private void OnDragEnded(DraggableItem draggable)
+    {
+        // Fires after any drag ends: placement, cancel, or basket return.
+        // Only start a new placement if nothing else already triggered one
+        // (i.e., we are not already dragging and still have stock).
         StartCoroutine(BeginNextFrame());
     }
 
@@ -74,6 +83,7 @@ public class DragTest : MonoBehaviour
             manager.OnItemPlaced         -= OnItemPlaced;
             manager.OnItemPickedUp       -= OnItemPickedUp;
             manager.OnPlacementCancelled -= OnPlacementCancelled;
+            manager.OnDragEnded          -= OnDragEnded;
         }
     }
 }
