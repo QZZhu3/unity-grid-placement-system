@@ -316,4 +316,27 @@ public class PlacementManager : MonoBehaviour
     // ── Public state ──────────────────────────────────────────────────────────
 
     public bool IsDragging => activeDraggable != null;
+
+    /// <summary>
+    /// Programmatically cancels any active drag.
+    /// If the item was picked up from the grid, it is restored to its original position.
+    /// If it was a new item from inventory, the preview object is destroyed.
+    /// Safe to call when no drag is active.
+    /// </summary>
+    public void CancelPlacement()
+    {
+        if (activeDraggable == null) return;
+        HandleCancel(activeDraggable);
+    }
+
+    /// <summary>
+    /// Programmatically returns the active draggable to inventory.
+    /// Equivalent to the player dropping the item on the return basket.
+    /// Safe to call when no drag is active.
+    /// </summary>
+    public void ReturnToInventory()
+    {
+        if (activeDraggable == null) return;
+        ReturnToInventory(activeDraggable);
+    }
 }
