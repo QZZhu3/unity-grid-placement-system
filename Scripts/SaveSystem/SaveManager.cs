@@ -22,7 +22,7 @@ namespace PlacementSystem.SaveSystem
         private void Awake()
         {
             // Auto-register all ISaveable components in the scene
-            var foundSaveables = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
+            var foundSaveables = FindObjectsOfType<MonoBehaviour>();
             foreach (var mono in foundSaveables)
             {
                 if (mono is ISaveable saveable)
