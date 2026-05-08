@@ -8,6 +8,11 @@ using System.Collections.Generic;
 /// This class never performs its own unlock checks — it always delegates to
 /// <see cref="UnlockManager"/>, which is the single source of truth.
 ///
+/// Cache behaviour:
+///   Eligible items are cached after the first query and rebuilt only when
+///   <see cref="UnlockManager.OnCategoryUnlocked"/> or <see cref="UnlockManager.OnThemeUnlocked"/>
+///   fires. This avoids re-filtering the full item list on every reward draw.
+///
 /// Rarity weighting:
 ///   Each <see cref="ItemRarity"/> tier has a configurable drop weight.
 ///   The pool performs a two-step draw: first select a rarity tier by weight,
@@ -18,6 +23,7 @@ using System.Collections.Generic;
 /// Seasonal filtering:
 ///   Pass a <see cref="SeasonTag"/> to <see cref="DrawItem(SeasonTag)"/> to restrict
 ///   the pool to seasonally tagged items. Pass null for a season-agnostic draw.
+///   Note: seasonal draws bypass the cache and filter live (seasonal pools are small).
 ///
 /// Usage:
 ///   1. Assign all game items to <see cref="allItems"/>.
@@ -34,7 +40,7 @@ public class ItemRewardPool : MonoBehaviour
 
     [Header("Item Registry")]
     [Tooltip("Every PlaceableItem asset in the game. " +
-             "The pool filters this list at draw time via UnlockManager.")]
+             "The pool filters this list via UnlockManager and caches the result.")]
     [SerializeField] private List<PlaceableItem> allItems = new List<PlaceableItem>();
 
     [Header("Rarity Weights")]
@@ -43,6 +49,46 @@ public class ItemRewardPool : MonoBehaviour
     [SerializeField] private float weightUncommon  = 25f;
     [SerializeField] private float weightRare      = 12f;
     [SerializeField] private float weightSeasonal  =  3f;
+
+    // ── Cache ─────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Cached list of all eligible items (no season filter).
+    /// Rebuilt when <see cref="InvalidateCache"/> is called.
+    /// </summary>
+    private List<PlaceableItem> cachedEligible;
+    private bool                cacheValid = false;
+
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
+
+    private void Awake()
+    {
+        if (unlockManager == null)
+            unlockManager = FindAnyObjectByType<UnlockManager>();
+    }
+
+    private void Start()
+    {
+        if (unlockManager != null)
+        {
+            // Invalidate cache whenever unlock state changes.
+            // UI systems subscribe to these same events — this class never touches UI.
+            unlockManager.OnCategoryUnlocked += _ => InvalidateCache();
+            unlockManager.OnThemeUnlocked    += _ => InvalidateCache();
+        }
+
+        // Prime the cache on start so the first draw is instant.
+        RebuildCache();
+    }
+
+    private void OnDestroy()
+    {
+        if (unlockManager != null)
+        {
+            unlockManager.OnCategoryUnlocked -= _ => InvalidateCache();
+            unlockManager.OnThemeUnlocked    -= _ => InvalidateCache();
+        }
+    }
 
     // ── Public API ────────────────────────────────────────────────────────────
 
@@ -54,7 +100,6 @@ public class ItemRewardPool : MonoBehaviour
     {
         List<PlaceableItem> eligible = GetEligibleItems(season);
         if (eligible.Count == 0) return null;
-
         return DrawFromEligible(eligible);
     }
 
@@ -80,7 +125,10 @@ public class ItemRewardPool : MonoBehaviour
 
     /// <summary>
     /// Returns all currently eligible items, optionally filtered by season.
-    /// Delegates entirely to <see cref="UnlockManager"/> — no local unlock logic.
+    ///
+    /// For season-agnostic calls, returns the cached list (rebuilt only on unlock change).
+    /// For seasonal calls, filters the cached list live (seasonal pools are small).
+    /// Delegates all unlock checks to <see cref="UnlockManager"/> — no local logic.
     /// </summary>
     public List<PlaceableItem> GetEligibleItems(SeasonTag season = null)
     {
@@ -90,9 +138,18 @@ public class ItemRewardPool : MonoBehaviour
             return new List<PlaceableItem>();
         }
 
-        return season == null
-            ? unlockManager.FilterEligible(allItems)
-            : unlockManager.FilterEligibleForSeason(allItems, season);
+        // Ensure cache is valid
+        if (!cacheValid) RebuildCache();
+
+        if (season == null)
+            return cachedEligible;
+
+        // Seasonal filter applied on top of the cache (not cached separately —
+        // seasonal events change infrequently and the filtered list is small)
+        List<PlaceableItem> seasonal = new List<PlaceableItem>();
+        foreach (PlaceableItem item in cachedEligible)
+            if (item.HasSeasonTag(season)) seasonal.Add(item);
+        return seasonal;
     }
 
     /// <summary>
@@ -105,6 +162,36 @@ public class ItemRewardPool : MonoBehaviour
         foreach (PlaceableItem item in eligible)
             if (item.Rarity == rarity) result.Add(item);
         return result;
+    }
+
+    /// <summary>
+    /// Forces an immediate cache rebuild.
+    /// Call this after programmatically adding items to <see cref="allItems"/> at runtime.
+    /// </summary>
+    public void ForceRebuildCache() => RebuildCache();
+
+    // ── Cache management ──────────────────────────────────────────────────────
+
+    private void InvalidateCache()
+    {
+        cacheValid = false;
+    }
+
+    private void RebuildCache()
+    {
+        if (unlockManager == null)
+        {
+            cachedEligible = new List<PlaceableItem>();
+            cacheValid     = true;
+            return;
+        }
+
+        cachedEligible = unlockManager.FilterEligible(allItems);
+        cacheValid     = true;
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        Debug.Log($"[ItemRewardPool] Cache rebuilt: {cachedEligible.Count}/{allItems.Count} items eligible.");
+#endif
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
@@ -156,7 +243,7 @@ public class ItemRewardPool : MonoBehaviour
 
         if (weights.Count == 0) return ItemRarity.Common; // fallback
 
-        float roll = Random.Range(0f, total);
+        float roll       = Random.Range(0f, total);
         float cumulative = 0f;
         foreach ((ItemRarity rarity, float weight) in weights)
         {
@@ -181,9 +268,16 @@ public class ItemRewardPool : MonoBehaviour
     [ContextMenu("Debug: Print Eligible Item Count")]
     private void DebugPrintEligible()
     {
-        List<PlaceableItem> eligible = GetEligibleItems();
-        Debug.Log($"[ItemRewardPool] Eligible items: {eligible.Count} / {allItems.Count}");
-        foreach (PlaceableItem item in eligible)
+        if (!cacheValid) RebuildCache();
+        Debug.Log($"[ItemRewardPool] Eligible items: {cachedEligible.Count} / {allItems.Count}");
+        foreach (PlaceableItem item in cachedEligible)
             Debug.Log($"  - {item.DisplayName} ({item.Rarity}) [{item.Category?.DisplayName ?? "No Category"}]");
+    }
+
+    [ContextMenu("Debug: Force Rebuild Cache")]
+    private void DebugForceRebuild()
+    {
+        RebuildCache();
+        Debug.Log($"[ItemRewardPool] Cache force-rebuilt: {cachedEligible.Count} eligible items.");
     }
 }

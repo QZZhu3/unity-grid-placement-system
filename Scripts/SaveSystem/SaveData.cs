@@ -9,9 +9,15 @@ namespace PlacementSystem.SaveSystem
     {
         public string version = "1.0";
         public long timestamp;
-        
-        public PlacementSaveData placementData = new PlacementSaveData();
-        public InventorySaveData inventoryData = new InventorySaveData();
+
+        public PlacementSaveData   placementData   = new PlacementSaveData();
+        public InventorySaveData   inventoryData   = new InventorySaveData();
+
+        /// <summary>Player level, XP, and achieved milestone IDs.</summary>
+        public ProgressionSaveData progressionData = new ProgressionSaveData();
+
+        /// <summary>Unlocked category and theme IDs.</summary>
+        public UnlockSaveData      unlockData      = new UnlockSaveData();
     }
 
     [Serializable]
@@ -40,5 +46,49 @@ namespace PlacementSystem.SaveSystem
     {
         public string itemId;
         public int quantity;
+    }
+
+    // ── Progression ───────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Serializable snapshot of <see cref="PlayerProgressionManager"/> state.
+    /// All references are stored as stable string IDs — never as asset references.
+    /// </summary>
+    [Serializable]
+    public class ProgressionSaveData
+    {
+        /// <summary>Current player level.</summary>
+        public int level = 1;
+
+        /// <summary>Current XP within the current level.</summary>
+        public float xp = 0f;
+
+        /// <summary>
+        /// Stable IDs of all <see cref="ProgressionMilestone"/> assets that have been achieved.
+        /// Populated from <see cref="ProgressionMilestone.Id"/>.
+        /// </summary>
+        public List<string> achievedMilestoneIds = new List<string>();
+    }
+
+    // ── Unlock state ──────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Serializable snapshot of <see cref="UnlockManager"/> state.
+    /// All references are stored as stable string IDs — never as asset references.
+    /// </summary>
+    [Serializable]
+    public class UnlockSaveData
+    {
+        /// <summary>
+        /// Stable IDs of all unlocked <see cref="ItemCategory"/> assets.
+        /// Populated from <see cref="ItemCategory.Id"/>.
+        /// </summary>
+        public List<string> unlockedCategoryIds = new List<string>();
+
+        /// <summary>
+        /// Stable IDs of all unlocked <see cref="DecorationTheme"/> assets.
+        /// Populated from <see cref="DecorationTheme.Id"/>.
+        /// </summary>
+        public List<string> unlockedThemeIds = new List<string>();
     }
 }
