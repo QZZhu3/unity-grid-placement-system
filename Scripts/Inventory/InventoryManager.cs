@@ -53,7 +53,9 @@ public class InventoryManager : MonoBehaviour
     {
         if (item == null || quantity <= 0) return;
 
-        if (inventory.ContainsKey(item.ItemId))
+        bool isNewItem = !inventory.ContainsKey(item.ItemId);
+
+        if (!isNewItem)
         {
             inventory[item.ItemId].Quantity += quantity;
         }
@@ -62,7 +64,12 @@ public class InventoryManager : MonoBehaviour
             inventory[item.ItemId] = new InventorySlot(item, quantity);
         }
 
-        OnInventoryChanged?.Invoke(item.ItemId, inventory[item.ItemId].Quantity);
+        // A new item type requires a full UI rebuild so a new slot is created.
+        // An existing item only needs its quantity updated.
+        if (isNewItem)
+            OnInventoryRefreshed?.Invoke();
+        else
+            OnInventoryChanged?.Invoke(item.ItemId, inventory[item.ItemId].Quantity);
     }
 
     /// <summary>
