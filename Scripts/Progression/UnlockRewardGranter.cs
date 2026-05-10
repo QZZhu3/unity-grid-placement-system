@@ -2,15 +2,15 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// Automatically grants items to the player's inventory when their category is unlocked.
+/// Automatically grants items to the player's inventory the FIRST TIME a category unlocks.
 ///
-/// Attach this to any GameObject in the scene (e.g. ProgressionSystem).
-/// InventoryManager is auto-discovered at startup — no manual wiring needed.
+/// Uses a HashSet to track which categories have already been granted, so items are
+/// never awarded twice — even across save/load cycles or multiple Play sessions.
 ///
-/// For each entry, specify a category and the items (with quantities) to grant
-/// when that category first unlocks.
+/// Attach this to the ProgressionSystem GameObject.
+/// InventoryManager and UnlockManager are auto-discovered at startup.
 ///
-/// Usage:
+/// Setup:
 ///   1. Add this component to ProgressionSystem.
 ///   2. In the Inspector, add entries to "Grants On Unlock".
 ///   3. For each entry, set the Category and add item+quantity pairs.
@@ -27,11 +27,18 @@ public class UnlockRewardGranter : MonoBehaviour
     [Tooltip("Each entry defines which items (and how many) to grant when a specific category unlocks.")]
     [SerializeField] private List<CategoryGrantEntry> grantsOnUnlock = new List<CategoryGrantEntry>();
 
+    // ── Runtime state ─────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Tracks category IDs that have already been granted this session.
+    /// Prevents re-granting when the save system re-fires unlock events on load.
+    /// </summary>
+    private HashSet<string> alreadyGranted = new HashSet<string>();
+
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     private void Awake()
     {
-        // Auto-discover anywhere in the scene — not just on the same GameObject
         if (unlockManager    == null) unlockManager    = FindAnyObjectByType<UnlockManager>();
         if (inventoryManager == null) inventoryManager = FindAnyObjectByType<InventoryManager>();
 
@@ -57,6 +64,11 @@ public class UnlockRewardGranter : MonoBehaviour
     {
         if (inventoryManager == null) return;
 
+        // Skip if we have already processed grants for this category this session.
+        // This prevents re-granting when EvaluateUnlocks() re-fires on load.
+        if (alreadyGranted.Contains(category.Id)) return;
+        alreadyGranted.Add(category.Id);
+
         foreach (CategoryGrantEntry entry in grantsOnUnlock)
         {
             if (entry.Category == null) continue;
@@ -72,13 +84,23 @@ public class UnlockRewardGranter : MonoBehaviour
             }
         }
     }
+
+    // ── Save integration ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Call this after loading a save to pre-populate the already-granted set
+    /// with categories that were unlocked in a previous session.
+    /// This prevents re-granting items the player already received.
+    /// </summary>
+    public void MarkCategoriesAsAlreadyGranted(IEnumerable<string> categoryIds)
+    {
+        foreach (string id in categoryIds)
+            alreadyGranted.Add(id);
+    }
 }
 
 // ── Supporting types ──────────────────────────────────────────────────────────
 
-/// <summary>
-/// Pairs a category with a list of item+quantity grants triggered when it unlocks.
-/// </summary>
 [System.Serializable]
 public class CategoryGrantEntry
 {
@@ -89,9 +111,6 @@ public class CategoryGrantEntry
     public List<ItemGrantEntry> ItemsToGrant = new List<ItemGrantEntry>();
 }
 
-/// <summary>
-/// A single item and the quantity to grant.
-/// </summary>
 [System.Serializable]
 public class ItemGrantEntry
 {

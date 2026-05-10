@@ -23,6 +23,7 @@ public class ProgressionSaveHandler : MonoBehaviour, ISaveable
     [Header("Dependencies")]
     [SerializeField] private PlayerProgressionManager progressionManager;
     [SerializeField] private UnlockManager            unlockManager;
+    [SerializeField] private UnlockRewardGranter      rewardGranter;
 
     private void Awake()
     {
@@ -30,6 +31,8 @@ public class ProgressionSaveHandler : MonoBehaviour, ISaveable
             progressionManager = GetComponent<PlayerProgressionManager>();
         if (unlockManager == null)
             unlockManager = GetComponent<UnlockManager>();
+        if (rewardGranter == null)
+            rewardGranter = GetComponent<UnlockRewardGranter>();
     }
 
     // ── ISaveable ─────────────────────────────────────────────────────────────
@@ -82,6 +85,13 @@ public class ProgressionSaveHandler : MonoBehaviour, ISaveable
         // ── Unlock state ─────────────────────────────────────────────────────
         if (unlockManager != null)
         {
+            // Mark previously-unlocked categories as already granted BEFORE
+            // loading state and re-evaluating, so UnlockRewardGranter does not
+            // re-grant items the player already received in a previous session.
+            if (rewardGranter != null)
+                rewardGranter.MarkCategoriesAsAlreadyGranted(
+                    data.unlockData.unlockedCategoryIds);
+
             unlockManager.LoadState(
                 data.unlockData.unlockedCategoryIds,
                 data.unlockData.unlockedThemeIds);
