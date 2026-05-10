@@ -18,6 +18,9 @@ namespace PlacementSystem.SaveSystem
 
         /// <summary>Unlocked category and theme IDs.</summary>
         public UnlockSaveData      unlockData      = new UnlockSaveData();
+
+        /// <summary>Chest task progress and pending chest queue.</summary>
+        public ChestSaveData       chestData       = new ChestSaveData();
     }
 
     [Serializable]
@@ -68,6 +71,25 @@ namespace PlacementSystem.SaveSystem
         /// Populated from <see cref="ProgressionMilestone.Id"/>.
         /// </summary>
         public List<string> achievedMilestoneIds = new List<string>();
+    }
+
+    // ── Chest ─────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Serializable snapshot of chest progress and pending chest queue.
+    /// Chest IDs are stored as stable string IDs only.
+    /// </summary>
+    [Serializable]
+    public class ChestSaveData
+    {
+        /// <summary>Current task progress toward the next chest (0 to tasksPerChest-1).</summary>
+        public int currentProgress = 0;
+
+        /// <summary>
+        /// Ordered list of chest definition IDs in the pending queue.
+        /// First element is the next chest to be opened.
+        /// </summary>
+        public List<string> pendingChestIds = new List<string>();
     }
 
     // ── Unlock state ──────────────────────────────────────────────────────────
