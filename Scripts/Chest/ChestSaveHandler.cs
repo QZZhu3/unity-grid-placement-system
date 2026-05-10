@@ -40,13 +40,13 @@ public class ChestSaveHandler : MonoBehaviour, ISaveable
 
     // ── ISaveable ─────────────────────────────────────────────────────────────
 
-    public void SaveState(GameSaveData data)
+    public void PopulateSaveData(GameSaveData data)
     {
         data.chestData.currentProgress  = chestProgress != null ? chestProgress.CurrentProgress : 0;
         data.chestData.pendingChestIds   = chestQueue    != null ? chestQueue.GetQueueIds()      : new List<string>();
     }
 
-    public void LoadState(GameSaveData data)
+    public void LoadFromSaveData(GameSaveData data)
     {
         if (data.chestData == null) return;
 
