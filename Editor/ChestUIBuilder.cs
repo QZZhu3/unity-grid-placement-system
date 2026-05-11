@@ -48,7 +48,7 @@ public static class ChestUIBuilder
         }
 
         // ── Notification Button ───────────────────────────────────────────────
-        GameObject notifGO = CreateButton(canvasT, "ChestNotificationButton", "🎁");
+        GameObject notifGO = CreateButton(canvasT, "ChestNotificationButton", "[CHEST]");
         RectTransform notifRect = notifGO.GetComponent<RectTransform>();
         notifRect.anchorMin = new Vector2(0.5f, 0f);
         notifRect.anchorMax = new Vector2(0.5f, 0f);
@@ -159,9 +159,10 @@ public static class ChestUIBuilder
         // Attach ChestOpeningPanel script and wire references
         ChestOpeningPanel panelScript = panelGO.AddComponent<ChestOpeningPanel>();
         SerializedObject so = new SerializedObject(panelScript);
-        so.FindProperty("panelCanvasGroup").objectReferenceValue  = panelCG;
+        so.FindProperty("canvasGroup").objectReferenceValue       = panelCG;
+        so.FindProperty("backdrop").objectReferenceValue          = backdropGO;
         so.FindProperty("chestTitleText").objectReferenceValue    = titleGO.GetComponent<TextMeshProUGUI>();
-        so.FindProperty("rewardGrid").objectReferenceValue        = gridGO.GetComponent<RectTransform>();
+        so.FindProperty("rewardGrid").objectReferenceValue        = gridGO.transform;
         so.FindProperty("openButton").objectReferenceValue        = openBtnGO.GetComponent<Button>();
         so.FindProperty("closeButton").objectReferenceValue       = closeBtnGO.GetComponent<Button>();
         so.FindProperty("skipButton").objectReferenceValue        = skipBtnGO.GetComponent<Button>();
