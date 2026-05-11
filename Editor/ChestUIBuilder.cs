@@ -26,6 +26,118 @@ using TMPro;
 /// </summary>
 public static class ChestUIBuilder
 {
+    [MenuItem("Tools/Placement System/Build Reward Slot Prefab")]
+    public static void BuildRewardSlotPrefab()
+    {
+        const string prefabPath = "Assets/PlacementSystem/Prefabs/UI/RewardSlotPrefab.prefab";
+
+        // Ensure directory exists
+        System.IO.Directory.CreateDirectory(
+            System.IO.Path.Combine(Application.dataPath,
+            "../Assets/PlacementSystem/Prefabs/UI"));
+        AssetDatabase.Refresh();
+
+        // Build the slot hierarchy in memory
+        GameObject root = new GameObject("RewardSlotPrefab");
+        RectTransform rootRect = root.AddComponent<RectTransform>();
+        rootRect.sizeDelta = new Vector2(160f, 200f);
+        Image rootBg = root.AddComponent<Image>();
+        rootBg.color = new Color(0.15f, 0.12f, 0.20f, 1f);
+
+        // Item icon
+        GameObject iconGO = new GameObject("ItemIcon");
+        iconGO.transform.SetParent(root.transform, false);
+        RectTransform iconRect = iconGO.AddComponent<RectTransform>();
+        iconRect.anchorMin = new Vector2(0.5f, 1f);
+        iconRect.anchorMax = new Vector2(0.5f, 1f);
+        iconRect.pivot     = new Vector2(0.5f, 1f);
+        iconRect.anchoredPosition = new Vector2(0f, -10f);
+        iconRect.sizeDelta = new Vector2(90f, 90f);
+        Image iconImg = iconGO.AddComponent<Image>();
+        iconImg.color = new Color(0.6f, 0.6f, 0.6f, 1f);
+
+        // Item name
+        GameObject nameGO = CreateTMPText(root.transform, "ItemName", "Item Name");
+        RectTransform nameRect = nameGO.GetComponent<RectTransform>();
+        nameRect.anchorMin = new Vector2(0f, 0.5f);
+        nameRect.anchorMax = new Vector2(1f, 0.5f);
+        nameRect.pivot     = new Vector2(0.5f, 0.5f);
+        nameRect.anchoredPosition = new Vector2(0f, 10f);
+        nameRect.sizeDelta = new Vector2(0f, 28f);
+        nameGO.GetComponent<TextMeshProUGUI>().fontSize = 14f;
+
+        // Rarity text
+        GameObject rarityGO = CreateTMPText(root.transform, "RarityText", "Common");
+        RectTransform rarityRect = rarityGO.GetComponent<RectTransform>();
+        rarityRect.anchorMin = new Vector2(0f, 0f);
+        rarityRect.anchorMax = new Vector2(1f, 0f);
+        rarityRect.pivot     = new Vector2(0.5f, 0f);
+        rarityRect.anchoredPosition = new Vector2(0f, 36f);
+        rarityRect.sizeDelta = new Vector2(0f, 24f);
+        TextMeshProUGUI rarityTMP = rarityGO.GetComponent<TextMeshProUGUI>();
+        rarityTMP.fontSize = 12f;
+        rarityTMP.color = new Color(0.8f, 0.7f, 0.3f, 1f);
+
+        // Quantity text
+        GameObject qtyGO = CreateTMPText(root.transform, "QuantityText", "x1");
+        RectTransform qtyRect = qtyGO.GetComponent<RectTransform>();
+        qtyRect.anchorMin = new Vector2(1f, 1f);
+        qtyRect.anchorMax = new Vector2(1f, 1f);
+        qtyRect.pivot     = new Vector2(1f, 1f);
+        qtyRect.anchoredPosition = new Vector2(-6f, -6f);
+        qtyRect.sizeDelta = new Vector2(40f, 24f);
+        qtyGO.GetComponent<TextMeshProUGUI>().fontSize = 13f;
+
+        // Rarity border (placeholder)
+        GameObject borderGO = new GameObject("RarityBorder");
+        borderGO.transform.SetParent(root.transform, false);
+        RectTransform borderRect = borderGO.AddComponent<RectTransform>();
+        borderRect.anchorMin = Vector2.zero;
+        borderRect.anchorMax = Vector2.one;
+        borderRect.offsetMin = Vector2.zero;
+        borderRect.offsetMax = Vector2.zero;
+        Image borderImg = borderGO.AddComponent<Image>();
+        borderImg.color = new Color(1f, 0.84f, 0f, 0f); // transparent placeholder
+
+        // Rarity glow (placeholder)
+        GameObject glowGO = new GameObject("RarityGlow");
+        glowGO.transform.SetParent(root.transform, false);
+        RectTransform glowRect = glowGO.AddComponent<RectTransform>();
+        glowRect.anchorMin = Vector2.zero;
+        glowRect.anchorMax = Vector2.one;
+        glowRect.offsetMin = new Vector2(-10f, -10f);
+        glowRect.offsetMax = new Vector2(10f, 10f);
+        Image glowImg = glowGO.AddComponent<Image>();
+        glowImg.color = new Color(1f, 1f, 0f, 0f); // transparent placeholder
+
+        // Attach RewardSlotUI and wire fields
+        RewardSlotUI slotScript = root.AddComponent<RewardSlotUI>();
+        SerializedObject slotSO = new SerializedObject(slotScript);
+        slotSO.FindProperty("itemIcon").objectReferenceValue      = iconImg;
+        slotSO.FindProperty("itemNameText").objectReferenceValue  = nameGO.GetComponent<TextMeshProUGUI>();
+        slotSO.FindProperty("rarityText").objectReferenceValue    = rarityTMP;
+        slotSO.FindProperty("quantityText").objectReferenceValue  = qtyGO.GetComponent<TextMeshProUGUI>();
+        slotSO.FindProperty("rarityBorder").objectReferenceValue  = borderImg;
+        slotSO.FindProperty("rarityGlow").objectReferenceValue    = glowImg;
+        slotSO.ApplyModifiedProperties();
+
+        // Save as prefab asset
+        GameObject prefab = PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
+        Object.DestroyImmediate(root);
+        AssetDatabase.Refresh();
+
+        if (prefab != null)
+        {
+            Debug.Log($"[ChestUIBuilder] RewardSlotPrefab created at {prefabPath}. " +
+                      "Assign it to ChestOpeningPanel → Reward Slot Prefab.");
+            Selection.activeObject = prefab;
+        }
+        else
+        {
+            Debug.LogError("[ChestUIBuilder] Failed to save RewardSlotPrefab.");
+        }
+    }
+
     [MenuItem("Tools/Placement System/Build Chest UI")]
     public static void BuildChestUI()
     {
