@@ -106,6 +106,8 @@ public class ChestOpeningPanel : MonoBehaviour
         if (closeButton != null) closeButton.gameObject.SetActive(false);
         if (skipButton  != null) skipButton.gameObject.SetActive(false);
 
+        // Activate before starting coroutine - coroutines cannot start on inactive GameObjects.
+        gameObject.SetActive(true);
         SetState(PanelState.OpeningAnimation);
         activeCoroutine = StartCoroutine(FadeIn());
     }
