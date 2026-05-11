@@ -1,5 +1,4 @@
 using UnityEngine;
-using PlacementSystem.Chest;
 
 /// <summary>
 /// Connects the placement system to the progression and chest reward systems.
