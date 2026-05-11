@@ -4,6 +4,9 @@ using UnityEngine;
 /// <summary>
 /// Manages the queue of earned but unopened chests.
 ///
+/// Uses <see cref="ChestQueueEntry"/> instead of raw <see cref="ChestDefinition"/>
+/// to support multiple chest types, seasonal events, and future metadata.
+///
 /// Chests are added by <see cref="ChestProgressManager"/> when earned,
 /// and consumed by <see cref="RewardManager"/> when opened.
 ///
@@ -15,15 +18,16 @@ using UnityEngine;
 public class ChestQueueManager : MonoBehaviour
 {
     // ── Runtime state ─────────────────────────────────────────────────────────
-    private readonly Queue<ChestDefinition> pendingChests = new Queue<ChestDefinition>();
+
+    private readonly Queue<ChestQueueEntry> pendingChests = new Queue<ChestQueueEntry>();
 
     // ── Events ────────────────────────────────────────────────────────────────
 
-    /// <summary>Fired when a new chest is added to the queue.</summary>
-    public event System.Action<ChestDefinition> OnChestEnqueued;
+    /// <summary>Fired when a new chest entry is added to the queue.</summary>
+    public event System.Action<ChestQueueEntry> OnChestEnqueued;
 
-    /// <summary>Fired when a chest is dequeued for opening.</summary>
-    public event System.Action<ChestDefinition> OnChestDequeued;
+    /// <summary>Fired when a chest entry is dequeued for opening.</summary>
+    public event System.Action<ChestQueueEntry> OnChestDequeued;
 
     /// <summary>Fired whenever the queue count changes.</summary>
     public event System.Action<int> OnQueueCountChanged;
@@ -36,55 +40,69 @@ public class ChestQueueManager : MonoBehaviour
     /// <summary>True if there is at least one chest ready to open.</summary>
     public bool HasPendingChests => pendingChests.Count > 0;
 
-    /// <summary>Peek at the next chest without removing it. Returns null if empty.</summary>
-    public ChestDefinition PeekNext() =>
+    /// <summary>Peek at the next entry without removing it. Returns null if empty.</summary>
+    public ChestQueueEntry PeekNext() =>
         pendingChests.Count > 0 ? pendingChests.Peek() : null;
 
     // ── Public API ────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Adds a chest to the end of the queue.
-    /// Called by <see cref="ChestProgressManager"/> when a chest is earned.
+    /// Adds a chest to the end of the queue using a pre-built entry.
     /// </summary>
-    public void EnqueueChest(ChestDefinition chest)
+    public void EnqueueChest(ChestQueueEntry entry)
     {
-        if (chest == null) return;
-        pendingChests.Enqueue(chest);
-        Debug.Log($"[ChestQueueManager] Enqueued '{chest.DisplayName}'. Queue size: {pendingChests.Count}");
-        OnChestEnqueued?.Invoke(chest);
+        if (entry == null || entry.ChestDefinition == null) return;
+
+        pendingChests.Enqueue(entry);
+        Debug.Log($"[ChestQueueManager] Enqueued '{entry.ChestDefinition.DisplayName}' " +
+                  $"(source: {entry.SourceTag}). Queue size: {pendingChests.Count}");
+        OnChestEnqueued?.Invoke(entry);
         OnQueueCountChanged?.Invoke(pendingChests.Count);
     }
 
     /// <summary>
-    /// Removes and returns the next chest from the queue.
+    /// Convenience overload: wraps a ChestDefinition in a new entry and enqueues it.
+    /// </summary>
+    public void EnqueueChest(ChestDefinition chest, string sourceTag = "")
+    {
+        if (chest == null) return;
+        EnqueueChest(new ChestQueueEntry(chest, sourceTag));
+    }
+
+    /// <summary>
+    /// Removes and returns the next chest entry from the queue.
     /// Returns null if the queue is empty.
     /// Called by <see cref="RewardManager"/> when the player opens a chest.
     /// </summary>
-    public ChestDefinition DequeueChest()
+    public ChestQueueEntry DequeueChest()
     {
         if (pendingChests.Count == 0) return null;
-        ChestDefinition chest = pendingChests.Dequeue();
-        Debug.Log($"[ChestQueueManager] Dequeued '{chest.DisplayName}'. Queue size: {pendingChests.Count}");
-        OnChestDequeued?.Invoke(chest);
+
+        ChestQueueEntry entry = pendingChests.Dequeue();
+        Debug.Log($"[ChestQueueManager] Dequeued '{entry.ChestDefinition.DisplayName}'. " +
+                  $"Queue size: {pendingChests.Count}");
+        OnChestDequeued?.Invoke(entry);
         OnQueueCountChanged?.Invoke(pendingChests.Count);
-        return chest;
+        return entry;
     }
 
     /// <summary>
-    /// Loads the queue from a list of chest IDs and a lookup dictionary.
+    /// Loads the queue from a list of chest IDs and a resolver function.
     /// Called by the save system on load.
     /// </summary>
     public void LoadQueue(IEnumerable<string> chestIds, System.Func<string, ChestDefinition> resolver)
     {
         pendingChests.Clear();
+
         foreach (string id in chestIds)
         {
             ChestDefinition chest = resolver(id);
             if (chest != null)
-                pendingChests.Enqueue(chest);
+                pendingChests.Enqueue(new ChestQueueEntry(chest, "save_restore"));
             else
                 Debug.LogWarning($"[ChestQueueManager] Could not resolve chest ID '{id}' on load.");
         }
+
         OnQueueCountChanged?.Invoke(pendingChests.Count);
     }
 
@@ -94,17 +112,19 @@ public class ChestQueueManager : MonoBehaviour
     public List<string> GetQueueIds()
     {
         List<string> ids = new List<string>();
-        foreach (ChestDefinition chest in pendingChests)
-            ids.Add(chest.Id);
+        foreach (ChestQueueEntry entry in pendingChests)
+            ids.Add(entry.ChestDefinition.Id);
         return ids;
     }
 
     // ── Debug ─────────────────────────────────────────────────────────────────
+
     [ContextMenu("Debug: Print Queue")]
     private void DebugPrint()
     {
         Debug.Log($"[ChestQueueManager] Pending chests ({pendingChests.Count}):");
-        foreach (ChestDefinition chest in pendingChests)
-            Debug.Log($"  - {chest.DisplayName} ({chest.Id})");
+        foreach (ChestQueueEntry entry in pendingChests)
+            Debug.Log($"  - {entry.ChestDefinition.DisplayName} ({entry.ChestDefinition.Id}) " +
+                      $"| source: {entry.SourceTag} | earned: {entry.EarnedAtUtc}");
     }
 }

@@ -110,8 +110,9 @@ public class RewardManager : MonoBehaviour
             return null;
         }
 
-        ChestDefinition chest = chestQueue.DequeueChest();
-        if (chest == null) return null;
+        ChestQueueEntry entry = chestQueue.DequeueChest();
+        if (entry == null || entry.ChestDefinition == null) return null;
+        ChestDefinition chest = entry.ChestDefinition;
 
         // Build draw context
         var context = new RewardSelectionContext(
@@ -135,7 +136,7 @@ public class RewardManager : MonoBehaviour
         ChestOpenResult result = new ChestOpenResult(chest, bundle);
         OnChestOpened?.Invoke(result);
 
-        Debug.Log($"[RewardManager] Opened '{chest.DisplayName}': " +
+        Debug.Log($"[RewardManager] Opened '{chest.DisplayName}' (source: {entry.SourceTag}): " +
                   $"{bundle.TotalItemCount} item(s) rewarded.");
 
         return result;
