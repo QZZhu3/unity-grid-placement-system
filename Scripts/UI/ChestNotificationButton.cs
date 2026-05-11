@@ -13,6 +13,10 @@ using TMPro;
 ///   - Attach to a Button GameObject in the Canvas
 ///   - Assign ChestQueueManager reference (or leave empty for auto-discovery)
 ///   - ChestUIController will subscribe to OnOpenRequested automatically
+///
+/// IMPORTANT: This GameObject must be ACTIVE in the scene at startup so that
+/// Awake/Start run and the queue subscription is established before any chests
+/// are earned. The button hides itself visually when no chests are pending.
 /// </summary>
 public class ChestNotificationButton : MonoBehaviour
 {
@@ -44,6 +48,7 @@ public class ChestNotificationButton : MonoBehaviour
 
     private void Awake()
     {
+        // Auto-discover dependencies
         if (chestQueue == null)
             chestQueue = FindAnyObjectByType<ChestQueueManager>();
 
@@ -52,18 +57,29 @@ public class ChestNotificationButton : MonoBehaviour
 
         if (button != null)
             button.onClick.AddListener(HandleButtonClicked);
+
+        // Hide visually at startup — we stay active so we can receive events.
+        // The actual show/hide is driven by RefreshBadge via the queue event.
+        SetVisible(false);
     }
 
-    private void OnEnable()
+    private void Start()
     {
+        // Subscribe after all Awake() calls have run (queue is guaranteed to exist).
         if (chestQueue != null)
         {
             chestQueue.OnQueueCountChanged += RefreshBadge;
+            // Sync immediately in case chests were already queued before this Start ran.
             RefreshBadge(chestQueue.PendingCount);
+        }
+        else
+        {
+            Debug.LogWarning("[ChestNotificationButton] ChestQueueManager not found. " +
+                             "Button will not respond to chest events.");
         }
     }
 
-    private void OnDisable()
+    private void OnDestroy()
     {
         if (chestQueue != null)
             chestQueue.OnQueueCountChanged -= RefreshBadge;
@@ -90,10 +106,10 @@ public class ChestNotificationButton : MonoBehaviour
     {
         bool hasChests = count > 0;
 
-        // Show/hide the button
-        gameObject.SetActive(hasChests);
+        // Show or hide the button visually (keep GameObject active for event subscription)
+        SetVisible(hasChests);
 
-        // Badge text
+        // Badge text (only shown when more than one chest is pending)
         if (badgeContainer != null)
             badgeContainer.SetActive(count > 1);
 
@@ -102,8 +118,31 @@ public class ChestNotificationButton : MonoBehaviour
 
         // Pulse animator
         if (pulseAnimator != null && pulseAnimator.isActiveAndEnabled)
-        {
             pulseAnimator.SetBool(pulseParam, hasChests);
+    }
+
+    /// <summary>
+    /// Shows or hides the button visually without deactivating the GameObject.
+    /// Uses CanvasGroup alpha + interactable so the subscription stays alive.
+    /// </summary>
+    private void SetVisible(bool visible)
+    {
+        // Try CanvasGroup first (preferred — keeps raycasts off when hidden)
+        CanvasGroup cg = GetComponent<CanvasGroup>();
+        if (cg != null)
+        {
+            cg.alpha          = visible ? 1f : 0f;
+            cg.interactable   = visible;
+            cg.blocksRaycasts = visible;
+            return;
         }
+
+        // Fallback: toggle the Button and Image components
+        if (button != null)
+            button.interactable = visible;
+
+        Image img = GetComponent<Image>();
+        if (img != null)
+            img.enabled = visible;
     }
 }
