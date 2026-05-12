@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
 using TMPro;
-using PlacementSystem.Journal;
 
 /// <summary>
 /// Editor utility that builds the entire Ambient Task Journal UI hierarchy.
