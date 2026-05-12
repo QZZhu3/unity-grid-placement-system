@@ -21,7 +21,7 @@ public class JournalBlurController : MonoBehaviour
 
     [Header("Animation")]
     [SerializeField] private float transitionDuration = 0.35f;
-    [SerializeField] private AnimationCurve easeCurve = AnimationCurve.InOut(0f, 0f, 1f, 1f);
+    [SerializeField] private AnimationCurve easeCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
     private Coroutine activeTransition;
     private bool isBlurActive = false;
