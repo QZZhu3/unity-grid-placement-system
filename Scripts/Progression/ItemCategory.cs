@@ -2,14 +2,14 @@ using UnityEngine;
 
 /// <summary>
 /// Defines a decoration category (e.g. "Water Features", "Stone Paths", "Sakura Lanterns").
-/// Categories are the primary unlock unit — unlocking a category makes all items in that
+/// Categories are the primary unlock unit -- unlocking a category makes all items in that
 /// category eligible to appear in reward pools.
 ///
 /// Categories support an optional <see cref="parentCategory"/> reference for future
-/// hierarchical organisation (e.g. "Lanterns" → parent: "Lighting" → parent: "Garden Basics").
+/// hierarchical organisation (e.g. "Lanterns" -> parent: "Lighting" -> parent: "Garden Basics").
 /// The hierarchy is purely informational at this stage; unlock logic operates per-category.
 ///
-/// Create via: Assets → Placement System → Progression → Item Category
+/// Create via: Assets -> Placement System -> Progression -> Item Category
 /// </summary>
 [CreateAssetMenu(
     fileName = "Category_",
@@ -48,7 +48,7 @@ public class ItemCategory : ScriptableObject
              "Leave null for standalone categories.")]
     [SerializeField] private DecorationTheme theme;
 
-    // ── Public accessors ──────────────────────────────────────────────────────
+    // -- Public accessors ------------------------------------------------------
 
     public string          Id                   => id;
     public string          DisplayName          => displayName;

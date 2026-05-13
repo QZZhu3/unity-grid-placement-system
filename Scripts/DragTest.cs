@@ -1,5 +1,5 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// DragTest.cs  —  DEPRECATED
+// ------------------------------------------------------------------------------
+// DragTest.cs  --  DEPRECATED
 //
 // This file is kept as a stub so Unity does not throw missing-script errors on
 // any GameObjects that still reference it in the scene.
@@ -12,7 +12,7 @@
 //   1. Remove the DragTest component from the PlacementSystem GameObject in the scene.
 //   2. Delete this file.
 //   3. The InventoryUI component on the InventoryPanel GameObject drives placement.
-// ──────────────────────────────────────────────────────────────────────────────
+// ------------------------------------------------------------------------------
 
 using UnityEngine;
 

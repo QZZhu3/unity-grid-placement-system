@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// ── ValidationResult ──────────────────────────────────────────────────────────
+// -- ValidationResult ----------------------------------------------------------
 
 /// <summary>
 /// Immutable result returned by PlacementValidator.
@@ -24,13 +24,13 @@ public readonly struct ValidationResult
         new ValidationResult(false, reason);
 }
 
-// ── PlacementValidator ────────────────────────────────────────────────────────
+// -- PlacementValidator --------------------------------------------------------
 
 /// <summary>
 /// Stateless service that validates whether a placement is legal.
 /// Queries GridManager as the single source of truth.
 ///
-/// This class is intentionally stateless — it holds no data between calls.
+/// This class is intentionally stateless -- it holds no data between calls.
 /// Attach it to any GameObject; it requires a GridManager reference.
 /// </summary>
 public class PlacementValidator : MonoBehaviour
@@ -77,7 +77,7 @@ public class PlacementValidator : MonoBehaviour
 
     /// <summary>
     /// Checks area availability while ignoring cells belonging to the excluded item.
-    /// Used when an item is being moved — its own footprint must not block itself.
+    /// Used when an item is being moved -- its own footprint must not block itself.
     /// </summary>
     private bool IsAreaAvailableExcluding(Vector2Int pos, Vector2Int size,
                                           Vector2Int excludePos, Vector2Int excludeSize)

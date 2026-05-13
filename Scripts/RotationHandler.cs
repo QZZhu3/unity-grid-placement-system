@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Utility class for handling rotation calculations and transformations.
-/// Supports 0°, 90°, 180°, 270° rotations with proper footprint adjustment.
+/// Supports 0deg, 90deg, 180deg, 270deg rotations with proper footprint adjustment.
 /// </summary>
 public static class RotationHandler
 {
@@ -64,7 +64,7 @@ public static class RotationHandler
 
     /// <summary>
     /// Calculates the adjusted footprint size based on rotation.
-    /// For 90° and 270° rotations, width and height are swapped.
+    /// For 90deg and 270deg rotations, width and height are swapped.
     /// </summary>
     public static Vector2Int GetAdjustedSize(Vector2Int originalSize, int rotationAngle)
     {

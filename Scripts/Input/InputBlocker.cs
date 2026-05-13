@@ -9,14 +9,14 @@ using System.Collections.Generic;
 /// full-screen overlays (chest opening, cutscenes, dialogs, etc.).
 ///
 /// Typical setup:
-///   - One InputBlocker on PlacementSystem → targets MouseInputController, PlacementManager
-///   - One InputBlocker on Canvas/InventoryPanel → targets InventoryUI
+///   - One InputBlocker on PlacementSystem -> targets MouseInputController, PlacementManager
+///   - One InputBlocker on Canvas/InventoryPanel -> targets InventoryUI
 ///
 /// The blocker re-enables components automatically when all blockers are cleared.
 /// </summary>
 public class InputBlocker : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
 
     [Header("Behaviours to disable while input is blocked")]
     [Tooltip("MonoBehaviour components to enable/disable (e.g. MouseInputController, PlacementManager).")]
@@ -30,7 +30,7 @@ public class InputBlocker : MonoBehaviour
     [Tooltip("Optional: GameObjects to SetActive(false) during block (e.g. inventory panel).")]
     [SerializeField] private List<GameObject> hiddenDuringBlock = new List<GameObject>();
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void OnEnable()
     {
@@ -45,7 +45,7 @@ public class InputBlocker : MonoBehaviour
         GameInputState.OnInputBlockChanged -= HandleInputBlockChanged;
     }
 
-    // ── Handler ───────────────────────────────────────────────────────────────
+    // -- Handler ---------------------------------------------------------------
 
     private void HandleInputBlockChanged(bool isBlocked)
     {

@@ -1,5 +1,5 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// PlacementController.cs  —  DEPRECATED
+// ------------------------------------------------------------------------------
+// PlacementController.cs  --  DEPRECATED
 //
 // This was the original monolithic placement controller.
 // It has been replaced by the PlacementManager + DraggableItem + MouseInputController
@@ -9,7 +9,7 @@
 //   1. Remove PlacementController from any GameObjects in the scene.
 //   2. Remove PlacementUIManager from any GameObjects in the scene.
 //   3. Delete both files.
-// ──────────────────────────────────────────────────────────────────────────────
+// ------------------------------------------------------------------------------
 
 using UnityEngine;
 
@@ -29,7 +29,7 @@ public class PlacementController : MonoBehaviour
         enabled = false;
     }
 
-    // ── Stub public API ───────────────────────────────────────────────────────
+    // -- Stub public API -------------------------------------------------------
     // These stubs prevent compile errors if any other script still references
     // PlacementController methods. Remove them once all references are cleared.
 

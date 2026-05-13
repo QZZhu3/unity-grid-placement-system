@@ -14,7 +14,7 @@ using UnityEngine;
 /// </summary>
 public class ChestProgressManager : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
     [Header("Dependencies (auto-discovered if left empty)")]
     [SerializeField] private ChestQueueManager chestQueue;
 
@@ -26,10 +26,10 @@ public class ChestProgressManager : MonoBehaviour
     [Tooltip("Number of tasks required to earn one chest.")]
     [SerializeField, Min(1)] private int tasksPerChest = 3;
 
-    // ── Runtime state ─────────────────────────────────────────────────────────
+    // -- Runtime state ---------------------------------------------------------
     private int currentProgress;
 
-    // ── Events ────────────────────────────────────────────────────────────────
+    // -- Events ----------------------------------------------------------------
 
     /// <summary>Fired whenever progress changes. Args: (currentProgress, tasksPerChest).</summary>
     public event System.Action<int, int> OnProgressChanged;
@@ -37,15 +37,15 @@ public class ChestProgressManager : MonoBehaviour
     /// <summary>Fired when a chest is earned. Arg: the chest definition earned.</summary>
     public event System.Action<ChestDefinition> OnChestEarned;
 
-    // ── Public accessors ──────────────────────────────────────────────────────
+    // -- Public accessors ------------------------------------------------------
     public int CurrentProgress => currentProgress;
     public int TasksPerChest   => tasksPerChest;
 
-    /// <summary>Progress as a 0–1 fraction.</summary>
+    /// <summary>Progress as a 0-1 fraction.</summary>
     public float ProgressFraction =>
         tasksPerChest > 0 ? (float)currentProgress / tasksPerChest : 0f;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
     private void Awake()
     {
         if (chestQueue == null)
@@ -59,7 +59,7 @@ public class ChestProgressManager : MonoBehaviour
                              "Chests will not be earned until one is assigned.");
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // -- Public API ------------------------------------------------------------
 
     /// <summary>
     /// Adds progress toward the next chest. Call this when a task is completed.
@@ -73,7 +73,7 @@ public class ChestProgressManager : MonoBehaviour
         currentProgress += amount;
         OnProgressChanged?.Invoke(currentProgress, tasksPerChest);
 
-        // Check for chest(s) earned — handles multi-task completions
+        // Check for chest(s) earned -- handles multi-task completions
         while (currentProgress >= tasksPerChest)
         {
             currentProgress -= tasksPerChest;
@@ -93,7 +93,7 @@ public class ChestProgressManager : MonoBehaviour
         currentProgress = Mathf.Clamp(progress, 0, tasksPerChest - 1);
     }
 
-    // ── Private helpers ───────────────────────────────────────────────────────
+    // -- Private helpers -------------------------------------------------------
 
     private void EarnChest(ChestDefinition chest)
     {
@@ -108,7 +108,7 @@ public class ChestProgressManager : MonoBehaviour
         OnChestEarned?.Invoke(chest);
     }
 
-    // ── Debug ─────────────────────────────────────────────────────────────────
+    // -- Debug -----------------------------------------------------------------
     [ContextMenu("Debug: Add 1 Task Progress")]
     private void DebugAddProgress() => AddProgress(1);
 

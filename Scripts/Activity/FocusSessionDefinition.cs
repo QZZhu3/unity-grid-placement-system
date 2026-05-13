@@ -8,7 +8,7 @@ using UnityEngine;
 ///   - Ambient interaction type (cosmetic only, no fail state)
 ///   - Streak hook placeholder
 ///
-/// Create via: Assets → Create → Productivity Garden → Activity → Focus Session Definition
+/// Create via: Assets -> Create -> Productivity Garden -> Activity -> Focus Session Definition
 ///
 /// Example asset: FocusSession_Standard (25 min, WateringFlowers ambient)
 /// </summary>
@@ -26,7 +26,7 @@ public class FocusSessionDefinition : ActivityDefinition
 
     [Header("Ambient Interaction")]
     [Tooltip("The ambient interaction type shown during the session. " +
-             "Purely cosmetic — no fail state.")]
+             "Purely cosmetic -- no fail state.")]
     [SerializeField] private AmbientInteractionType ambientType = AmbientInteractionType.DriftingLeaves;
 
     [Tooltip("Whether the ambient interaction is shown at all during this session.")]
@@ -34,10 +34,10 @@ public class FocusSessionDefinition : ActivityDefinition
 
     [Header("Streak (future hook)")]
     [Tooltip("Whether completing this session contributes to a streak counter. " +
-             "Streak logic is not yet implemented — this is a placeholder.")]
+             "Streak logic is not yet implemented -- this is a placeholder.")]
     [SerializeField] private bool countsTowardStreak = true;
 
-    // ── Public accessors ──────────────────────────────────────────────────────
+    // -- Public accessors ------------------------------------------------------
 
     /// <summary>Session duration in seconds (converted from durationMinutes).</summary>
     public float DurationSeconds      => durationMinutes * 60f;

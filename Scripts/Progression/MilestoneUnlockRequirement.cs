@@ -4,7 +4,7 @@ using UnityEngine;
 /// Unlock requirement satisfied when a specific <see cref="ProgressionMilestone"/>
 /// has been achieved by the player.
 ///
-/// Create via: Assets → Placement System → Progression → Unlock Requirement → Milestone
+/// Create via: Assets -> Placement System -> Progression -> Unlock Requirement -> Milestone
 /// </summary>
 [CreateAssetMenu(
     fileName  = "Unlock_Milestone_",

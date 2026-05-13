@@ -3,14 +3,14 @@ using System;
 /// <summary>
 /// Records a single item reward grant for analytics, pity, and duplicate balancing.
 ///
-/// Not yet persisted to save — this is a runtime-only structure for now.
+/// Not yet persisted to save -- this is a runtime-only structure for now.
 /// Hook it into <see cref="RewardDrawService"/> to enable recency decay,
 /// pity counters, and duplicate protection in the future.
 /// </summary>
 [Serializable]
 public class RewardHistoryEntry
 {
-    // ── Identity ──────────────────────────────────────────────────────────────
+    // -- Identity --------------------------------------------------------------
 
     /// <summary>Stable string ID of the rewarded item (not asset reference, safe to persist).</summary>
     public string ItemId;
@@ -21,7 +21,7 @@ public class RewardHistoryEntry
     /// <summary>Rarity tier at which this item was drawn.</summary>
     public ItemRarity DrawnRarity;
 
-    // ── Source ────────────────────────────────────────────────────────────────
+    // -- Source ----------------------------------------------------------------
 
     /// <summary>ID of the chest that produced this reward.</summary>
     public string SourceChestId;
@@ -32,21 +32,21 @@ public class RewardHistoryEntry
     /// <summary>UTC Unix timestamp of when this reward was granted.</summary>
     public long GrantedAtUtc;
 
-    // ── Pity / Recency hooks ──────────────────────────────────────────────────
+    // -- Pity / Recency hooks --------------------------------------------------
 
     /// <summary>
     /// Number of draws since the last time this rarity was granted.
-    /// Used for pity counter logic — increment on each draw, reset on match.
+    /// Used for pity counter logic -- increment on each draw, reset on match.
     /// </summary>
     public int RollsSinceLastRarity;
 
     /// <summary>
     /// Number of draws since this specific item was last granted.
-    /// Used for recency decay — reduces weight of recently granted items.
+    /// Used for recency decay -- reduces weight of recently granted items.
     /// </summary>
     public int RollsSinceLastItem;
 
-    // ── Constructor ───────────────────────────────────────────────────────────
+    // -- Constructor -----------------------------------------------------------
 
     public RewardHistoryEntry(
         PlaceableItem item,

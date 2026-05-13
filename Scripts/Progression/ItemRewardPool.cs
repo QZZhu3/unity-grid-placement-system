@@ -5,7 +5,7 @@ using System.Collections.Generic;
 /// Manages the pool of <see cref="PlaceableItem"/> assets that can be awarded to the player.
 ///
 /// Filtering is entirely data-driven via <see cref="UnlockManager.IsItemEligible"/>.
-/// This class never performs its own unlock checks — it always delegates to
+/// This class never performs its own unlock checks -- it always delegates to
 /// <see cref="UnlockManager"/>, which is the single source of truth.
 ///
 /// Cache behaviour:
@@ -33,7 +33,7 @@ using System.Collections.Generic;
 /// </summary>
 public class ItemRewardPool : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
 
     [Header("Dependencies")]
     [SerializeField] private UnlockManager unlockManager;
@@ -50,7 +50,7 @@ public class ItemRewardPool : MonoBehaviour
     [SerializeField] private float weightRare      = 12f;
     [SerializeField] private float weightSeasonal  =  3f;
 
-    // ── Cache ─────────────────────────────────────────────────────────────────
+    // -- Cache -----------------------------------------------------------------
 
     /// <summary>
     /// Cached list of all eligible items (no season filter).
@@ -59,7 +59,7 @@ public class ItemRewardPool : MonoBehaviour
     private List<PlaceableItem> cachedEligible;
     private bool                cacheValid = false;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Awake()
     {
@@ -72,7 +72,7 @@ public class ItemRewardPool : MonoBehaviour
         if (unlockManager != null)
         {
             // Invalidate cache whenever unlock state changes.
-            // UI systems subscribe to these same events — this class never touches UI.
+            // UI systems subscribe to these same events -- this class never touches UI.
             unlockManager.OnCategoryUnlocked += _ => InvalidateCache();
             unlockManager.OnThemeUnlocked    += _ => InvalidateCache();
         }
@@ -90,7 +90,7 @@ public class ItemRewardPool : MonoBehaviour
         }
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // -- Public API ------------------------------------------------------------
 
     /// <summary>
     /// Draws a single item from the eligible pool using rarity-weighted selection.
@@ -128,7 +128,7 @@ public class ItemRewardPool : MonoBehaviour
     ///
     /// For season-agnostic calls, returns the cached list (rebuilt only on unlock change).
     /// For seasonal calls, filters the cached list live (seasonal pools are small).
-    /// Delegates all unlock checks to <see cref="UnlockManager"/> — no local logic.
+    /// Delegates all unlock checks to <see cref="UnlockManager"/> -- no local logic.
     /// </summary>
     public List<PlaceableItem> GetEligibleItems(SeasonTag season = null)
     {
@@ -144,7 +144,7 @@ public class ItemRewardPool : MonoBehaviour
         if (season == null)
             return cachedEligible;
 
-        // Seasonal filter applied on top of the cache (not cached separately —
+        // Seasonal filter applied on top of the cache (not cached separately --
         // seasonal events change infrequently and the filtered list is small)
         List<PlaceableItem> seasonal = new List<PlaceableItem>();
         foreach (PlaceableItem item in cachedEligible)
@@ -170,7 +170,7 @@ public class ItemRewardPool : MonoBehaviour
     /// </summary>
     public void ForceRebuildCache() => RebuildCache();
 
-    // ── Cache management ──────────────────────────────────────────────────────
+    // -- Cache management ------------------------------------------------------
 
     private void InvalidateCache()
     {
@@ -194,7 +194,7 @@ public class ItemRewardPool : MonoBehaviour
 #endif
     }
 
-    // ── Private helpers ───────────────────────────────────────────────────────
+    // -- Private helpers -------------------------------------------------------
 
     /// <summary>
     /// Two-step rarity-weighted draw:
@@ -263,7 +263,7 @@ public class ItemRewardPool : MonoBehaviour
         }
     }
 
-    // ── Debug ─────────────────────────────────────────────────────────────────
+    // -- Debug -----------------------------------------------------------------
 
     [ContextMenu("Debug: Print Eligible Item Count")]
     private void DebugPrintEligible()

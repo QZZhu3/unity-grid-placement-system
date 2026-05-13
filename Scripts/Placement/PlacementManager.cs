@@ -5,27 +5,27 @@ using UnityEngine;
 ///
 /// PlacementManager is a state coordinator only. It owns the active drag state
 /// and the placement lifecycle, but delegates:
-///   - Input polling and pick-up raycasting → PlacementInputHandler
-///   - DraggableItem creation and setup     → PlacementFactory
-///   - Grid validation                      → PlacementValidator (via DraggableItem)
+///   - Input polling and pick-up raycasting -> PlacementInputHandler
+///   - DraggableItem creation and setup     -> PlacementFactory
+///   - Grid validation                      -> PlacementValidator (via DraggableItem)
 ///
 /// Placement flow:
-///   BeginPlacement(item)  → PlacementFactory.CreateFromItem()
-///   PickUp(placed)        → PlacementFactory.AttachToDraggable()
-///   HandleConfirm()       → updates GridManager, fires OnItemPlaced
-///   HandleCancel()        → restores state, fires OnPlacementCancelled
+///   BeginPlacement(item)  -> PlacementFactory.CreateFromItem()
+///   PickUp(placed)        -> PlacementFactory.AttachToDraggable()
+///   HandleConfirm()       -> updates GridManager, fires OnItemPlaced
+///   HandleCancel()        -> restores state, fires OnPlacementCancelled
 ///
 /// PlacementManager is the only class that mutates GridManager occupancy.
 /// </summary>
 public class PlacementManager : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
 
     [Header("Dependencies (auto-discovered if left empty)")]
     [SerializeField] private GridManager      gridManager;
     [SerializeField] private PlacementFactory factory;
 
-    // ── Runtime state ─────────────────────────────────────────────────────────
+    // -- Runtime state ---------------------------------------------------------
 
     private DraggableItem activeDraggable;
     private PlacedItem    pickedUpItem;
@@ -40,7 +40,7 @@ public class PlacementManager : MonoBehaviour
     private int placementCooldownFrames;
     private const int PlacementCooldown = 2;
 
-    // ── Events ────────────────────────────────────────────────────────────────
+    // -- Events ----------------------------------------------------------------
 
     public delegate void PlacementDelegate(PlacedItem item);
     public delegate void PickUpDelegate(PlacedItem item);
@@ -61,7 +61,7 @@ public class PlacementManager : MonoBehaviour
     /// <summary>Fired when an item stops being dragged (placed, cancelled, or returned).</summary>
     public event DragDelegate OnDragEnded;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Awake()
     {
@@ -72,12 +72,12 @@ public class PlacementManager : MonoBehaviour
     private void Update()
     {
         // Count down the post-placement cooldown.
-        // PlacementInputHandler handles pick-up polling — nothing else needed here.
+        // PlacementInputHandler handles pick-up polling -- nothing else needed here.
         if (placementCooldownFrames > 0)
             placementCooldownFrames--;
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // -- Public API ------------------------------------------------------------
 
     /// <summary>
     /// Begins dragging a new item from inventory.
@@ -146,11 +146,11 @@ public class PlacementManager : MonoBehaviour
         ReturnToInventory(activeDraggable);
     }
 
-    // ── State queries ─────────────────────────────────────────────────────────
+    // -- State queries ---------------------------------------------------------
 
     public bool IsDragging => activeDraggable != null;
 
-    // ── Private ───────────────────────────────────────────────────────────────
+    // -- Private ---------------------------------------------------------------
 
     private void BindDraggable(DraggableItem draggable)
     {

@@ -8,18 +8,18 @@ using UnityEngine;
 /// by querying <see cref="ItemRewardPool"/>, filtering through
 /// <see cref="RewardFilterPipeline"/>, and performing weighted rarity selection.
 ///
-/// This class is a pure service — it holds no persistent state and is not a
+/// This class is a pure service -- it holds no persistent state and is not a
 /// MonoBehaviour. Instantiate it once and reuse it.
 ///
 /// Data flow:
 ///   ChestDefinition
-///   → RewardSelectionContext
-///   → RewardDrawService.Draw()
-///   → ItemRewardPool (get all unlocked items)
-///   → RewardFilterPipeline (seasonal, recency, duplicate filters)
-///   → Weighted rarity roll
-///   → Random item selection per tier
-///   → RewardBundle
+///   -> RewardSelectionContext
+///   -> RewardDrawService.Draw()
+///   -> ItemRewardPool (get all unlocked items)
+///   -> RewardFilterPipeline (seasonal, recency, duplicate filters)
+///   -> Weighted rarity roll
+///   -> Random item selection per tier
+///   -> RewardBundle
 /// </summary>
 public class RewardDrawService
 {
@@ -30,7 +30,7 @@ public class RewardDrawService
         this.rewardPool = rewardPool;
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // -- Public API ------------------------------------------------------------
 
     /// <summary>
     /// Draws a complete <see cref="RewardBundle"/> for the given context.
@@ -46,7 +46,7 @@ public class RewardDrawService
             return bundle;
         }
 
-        // Get all unlocked items from the pool (no season filter at pool level —
+        // Get all unlocked items from the pool (no season filter at pool level --
         // we apply our own filter pipeline below)
         List<PlaceableItem> candidates = rewardPool.GetEligibleItems();
 
@@ -76,7 +76,7 @@ public class RewardDrawService
         return bundle;
     }
 
-    // ── Private helpers ───────────────────────────────────────────────────────
+    // -- Private helpers -------------------------------------------------------
 
     private PlaceableItem DrawSingleItem(
         List<PlaceableItem>          eligible,

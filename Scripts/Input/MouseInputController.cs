@@ -46,7 +46,7 @@ public class MouseInputController : MonoBehaviour, IInputController
         }
     }
 
-    // ── IInputController implementation ──────────────────────────────────────
+    // -- IInputController implementation --------------------------------------
 
     /// <inheritdoc/>
     public Vector3 WorldPosition => worldPositionValid ? cachedWorldPosition : Vector3.zero;

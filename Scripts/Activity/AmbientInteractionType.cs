@@ -12,7 +12,7 @@
 /// </summary>
 public enum AmbientInteractionType
 {
-    /// <summary>No ambient interaction — timer only.</summary>
+    /// <summary>No ambient interaction -- timer only.</summary>
     None,
 
     /// <summary>Gentle drifting leaves float across the screen.</summary>
@@ -24,6 +24,6 @@ public enum AmbientInteractionType
     /// <summary>Player can tap to light small lanterns around the garden.</summary>
     LightingLanterns,
 
-    /// <summary>Soft fireflies drift and glow — tap to collect (no penalty for missing).</summary>
+    /// <summary>Soft fireflies drift and glow -- tap to collect (no penalty for missing).</summary>
     FireflyInteraction,
 }

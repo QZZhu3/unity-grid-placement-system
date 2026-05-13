@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// Owns the occupancy grid, world↔grid coordinate conversion, and
+/// Owns the occupancy grid, world?grid coordinate conversion, and
 /// placed-item registration. This is the single source of truth for
 /// what cells are free or occupied.
 ///
@@ -18,7 +18,7 @@ public class GridManager : MonoBehaviour
     private bool[,] occupancyGrid;
     private Dictionary<Vector2Int, PlacedItem> placedItems;
 
-    // Guaranteed-safe accessor — initialises on first use if Awake hasn't run yet
+    // Guaranteed-safe accessor -- initialises on first use if Awake hasn't run yet
     private Dictionary<Vector2Int, PlacedItem> PlacedItems
     {
         get
@@ -29,7 +29,7 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    // ── Public read-only properties ───────────────────────────────────────────
+    // -- Public read-only properties -------------------------------------------
     public int GridWidth  => gridWidth;
     public int GridHeight => gridHeight;
     public float CellSize => cellSize;
@@ -43,7 +43,7 @@ public class GridManager : MonoBehaviour
         placedItems   = new Dictionary<Vector2Int, PlacedItem>();  // reset on start / ClearGrid
     }
 
-    // ── Coordinate conversion ─────────────────────────────────────────────────
+    // -- Coordinate conversion -------------------------------------------------
 
     /// <summary>
     /// Converts a world position to the nearest grid cell coordinate.
@@ -68,7 +68,7 @@ public class GridManager : MonoBehaviour
         );
     }
 
-    // ── Bounds checks ─────────────────────────────────────────────────────────
+    // -- Bounds checks ---------------------------------------------------------
 
     public bool IsWithinBounds(Vector2Int pos) =>
         pos.x >= 0 && pos.x < gridWidth && pos.y >= 0 && pos.y < gridHeight;
@@ -77,7 +77,7 @@ public class GridManager : MonoBehaviour
         pos.x >= 0 && pos.x + size.x <= gridWidth &&
         pos.y >= 0 && pos.y + size.y <= gridHeight;
 
-    // ── Occupancy queries ─────────────────────────────────────────────────────
+    // -- Occupancy queries -----------------------------------------------------
 
     /// <summary>
     /// Returns true if the cell is occupied or out of bounds.
@@ -102,7 +102,7 @@ public class GridManager : MonoBehaviour
         return true;
     }
 
-    // ── Occupancy mutation ────────────────────────────────────────────────────
+    // -- Occupancy mutation ----------------------------------------------------
 
     public void MarkAreaOccupied(Vector2Int pos, Vector2Int size)
     {
@@ -120,7 +120,7 @@ public class GridManager : MonoBehaviour
                     occupancyGrid[x, z] = false;
     }
 
-    // ── PlacedItem registry ───────────────────────────────────────────────────
+    // -- PlacedItem registry ---------------------------------------------------
 
     public void RegisterPlacedItem(Vector2Int pos, PlacedItem item)   => PlacedItems[pos] = item;
     public void UnregisterPlacedItem(Vector2Int pos)                  => PlacedItems.Remove(pos);
@@ -129,7 +129,7 @@ public class GridManager : MonoBehaviour
 
     public void ClearGrid() => InitializeGrid();
 
-    // ── Editor Gizmos ─────────────────────────────────────────────────────────
+    // -- Editor Gizmos ---------------------------------------------------------
 
     private void OnDrawGizmosSelected()
     {
@@ -160,7 +160,7 @@ public class GridManager : MonoBehaviour
     }
 }
 
-// ── PlacedItem data class ──────────────────────────────────────────────────────
+// -- PlacedItem data class ------------------------------------------------------
 
 /// <summary>
 /// Record of an item that has been placed on the grid.

@@ -4,7 +4,7 @@ using System;
 /// Serializable snapshot of an active Focus Session.
 ///
 /// Stored inside GameSaveData.focusSessionData.
-/// Uses string IDs only — never asset references.
+/// Uses string IDs only -- never asset references.
 /// </summary>
 [Serializable]
 public class FocusSessionSaveData
@@ -21,7 +21,7 @@ public class FocusSessionSaveData
     /// <summary>Whether the session was paused when saved.</summary>
     public bool isPaused = false;
 
-    // ── Streak placeholder ────────────────────────────────────────────────────
+    // -- Streak placeholder ----------------------------------------------------
 
     /// <summary>
     /// Placeholder for future streak support.

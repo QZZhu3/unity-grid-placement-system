@@ -9,7 +9,7 @@ using System;
 [Serializable]
 public class ChestQueueEntry
 {
-    // ── Core ──────────────────────────────────────────────────────────────────
+    // -- Core ------------------------------------------------------------------
 
     /// <summary>The chest type to be opened.</summary>
     public ChestDefinition ChestDefinition;
@@ -17,7 +17,7 @@ public class ChestQueueEntry
     /// <summary>UTC Unix timestamp of when this chest was earned.</summary>
     public long EarnedAtUtc;
 
-    // ── Metadata (future extensibility) ──────────────────────────────────────
+    // -- Metadata (future extensibility) --------------------------------------
 
     /// <summary>
     /// Optional tag describing how this chest was earned.
@@ -31,7 +31,7 @@ public class ChestQueueEntry
     /// </summary>
     public string EventId;
 
-    // ── Constructor ───────────────────────────────────────────────────────────
+    // -- Constructor -----------------------------------------------------------
 
     public ChestQueueEntry(ChestDefinition definition, string sourceTag = "", string eventId = "")
     {

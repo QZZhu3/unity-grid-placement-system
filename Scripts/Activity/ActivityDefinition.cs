@@ -12,7 +12,7 @@ using UnityEngine;
 ///   - An ActivityType for routing
 ///   - An ActivityRewardConfig controlling XP and chest progress multipliers
 ///
-/// Create via: Assets → Create → Productivity Garden → Activity → Activity Definition
+/// Create via: Assets -> Create -> Productivity Garden -> Activity -> Activity Definition
 /// </summary>
 [CreateAssetMenu(
     fileName = "NewActivityDefinition",
@@ -36,7 +36,7 @@ public class ActivityDefinition : ScriptableObject
     [Header("Rewards")]
     [SerializeField] private ActivityRewardConfig rewardConfig = new ActivityRewardConfig();
 
-    // ── Public accessors ──────────────────────────────────────────────────────
+    // -- Public accessors ------------------------------------------------------
 
     public string              Id          => id;
     public string              DisplayName => displayName;

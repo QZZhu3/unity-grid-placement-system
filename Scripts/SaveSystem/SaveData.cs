@@ -51,11 +51,11 @@ namespace PlacementSystem.SaveSystem
         public int quantity;
     }
 
-    // ── Progression ───────────────────────────────────────────────────────────
+    // -- Progression -----------------------------------------------------------
 
     /// <summary>
     /// Serializable snapshot of <see cref="PlayerProgressionManager"/> state.
-    /// All references are stored as stable string IDs — never as asset references.
+    /// All references are stored as stable string IDs -- never as asset references.
     /// </summary>
     [Serializable]
     public class ProgressionSaveData
@@ -73,7 +73,7 @@ namespace PlacementSystem.SaveSystem
         public List<string> achievedMilestoneIds = new List<string>();
     }
 
-    // ── Chest ─────────────────────────────────────────────────────────────────
+    // -- Chest -----------------------------------------------------------------
 
     /// <summary>
     /// Serializable snapshot of chest progress and pending chest queue.
@@ -92,11 +92,11 @@ namespace PlacementSystem.SaveSystem
         public List<string> pendingChestIds = new List<string>();
     }
 
-    // ── Unlock state ──────────────────────────────────────────────────────────
+    // -- Unlock state ----------------------------------------------------------
 
     /// <summary>
     /// Serializable snapshot of <see cref="UnlockManager"/> state.
-    /// All references are stored as stable string IDs — never as asset references.
+    /// All references are stored as stable string IDs -- never as asset references.
     /// </summary>
     [Serializable]
     public class UnlockSaveData

@@ -15,13 +15,13 @@ using System.Collections.Generic;
 ///   - Rebuilds the entire slot list when InventoryManager fires OnInventoryRefreshed (e.g. after load).
 ///
 /// Architecture rules:
-///   - Never reads or writes inventory data directly — only via InventoryManager.
-///   - Never calls PlacementManager internals — only BeginPlacement() and IsDragging.
+///   - Never reads or writes inventory data directly -- only via InventoryManager.
+///   - Never calls PlacementManager internals -- only BeginPlacement() and IsDragging.
 ///   - All coupling is through events; no polling in Update().
 /// </summary>
 public class InventoryUI : MonoBehaviour
 {
-    // ── Inspector references ──────────────────────────────────────────────────
+    // -- Inspector references --------------------------------------------------
 
     [Header("Core References")]
     [SerializeField] private InventoryManager inventoryManager;
@@ -37,14 +37,14 @@ public class InventoryUI : MonoBehaviour
     [Tooltip("Optional label showing the currently selected item and remaining quantity.")]
     [SerializeField] private TextMeshProUGUI selectedItemText;
 
-    // ── Runtime state ─────────────────────────────────────────────────────────
+    // -- Runtime state ---------------------------------------------------------
 
     private readonly List<InventorySlotUI> slotUIs = new List<InventorySlotUI>();
     private InventorySlotUI  selectedSlotUI;
     private PlaceableItem    selectedItemData;
     private bool             chainPending;     // true while BeginPlacementNextFrame is queued
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Start()
     {
@@ -84,7 +84,7 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
-    // ── Slot construction ─────────────────────────────────────────────────────
+    // -- Slot construction -----------------------------------------------------
 
     /// <summary>
     /// Destroys all existing slot buttons and rebuilds them from the current inventory state.
@@ -116,7 +116,7 @@ public class InventoryUI : MonoBehaviour
         UpdateSelectedItemText();
     }
 
-    // ── Slot interaction ──────────────────────────────────────────────────────
+    // -- Slot interaction ------------------------------------------------------
 
     /// <summary>
     /// Called when the player clicks/taps a slot button.
@@ -145,7 +145,7 @@ public class InventoryUI : MonoBehaviour
         UpdateSelectedItemText();
     }
 
-    // ── Placement event handlers ──────────────────────────────────────────────
+    // -- Placement event handlers ----------------------------------------------
 
     /// <summary>
     /// After a successful placement, either chain the next placement (if qty > 0)
@@ -157,7 +157,7 @@ public class InventoryUI : MonoBehaviour
         {
             if (inventoryManager.HasItem(placedItem.ItemId))
             {
-                // Still have stock — chain the next placement after two frames.
+                // Still have stock -- chain the next placement after two frames.
                 // Set chainPending BEFORE the coroutine so DeferredDeselectIfIdle
                 // sees it on the very next frame and does not clear the selection.
                 UpdateSelectedItemText();
@@ -166,7 +166,7 @@ public class InventoryUI : MonoBehaviour
             }
             else
             {
-                // Ran out of stock — deselect
+                // Ran out of stock -- deselect
                 DeselectItem();
             }
         }
@@ -195,7 +195,7 @@ public class InventoryUI : MonoBehaviour
     }
 
     /// <summary>
-    /// Fired by PlacementManager whenever any drag ends — including basket returns.
+    /// Fired by PlacementManager whenever any drag ends -- including basket returns.
     /// This is the catch-all deselect for cases not covered by the above handlers.
     /// </summary>
     private void HandleDragEnded(DraggableItem draggable)
@@ -219,7 +219,7 @@ public class InventoryUI : MonoBehaviour
             DeselectItem();
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // -- Helpers ---------------------------------------------------------------
 
     /// <summary>
     /// Waits two frames then begins placement of the same item type.
@@ -259,7 +259,7 @@ public class InventoryUI : MonoBehaviour
         UpdateSelectedItemText();
     }
 
-    // ── Inventory event handlers ──────────────────────────────────────────────
+    // -- Inventory event handlers ----------------------------------------------
 
     /// <summary>
     /// Called when a single item's quantity changes.

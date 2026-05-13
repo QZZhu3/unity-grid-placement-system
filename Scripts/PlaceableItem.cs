@@ -4,10 +4,10 @@ using UnityEngine;
 /// ScriptableObject that defines a placeable decoration item.
 ///
 /// Extended from the base placement system to support the progression and
-/// unlock framework. New fields are all optional — existing items without
+/// unlock framework. New fields are all optional -- existing items without
 /// a category or unlock requirement remain fully usable.
 ///
-/// Create via: Assets → Placement System → Placeable Item
+/// Create via: Assets -> Placement System -> Placeable Item
 /// </summary>
 [CreateAssetMenu(
     fileName = "PlaceableItem_",
@@ -15,11 +15,11 @@ using UnityEngine;
     order    = 1)]
 public class PlaceableItem : ScriptableObject
 {
-    // ── Core placement data ───────────────────────────────────────────────────
+    // -- Core placement data ---------------------------------------------------
 
     [Header("Identity")]
     [Tooltip("Stable machine-readable ID. Auto-generated from asset name if empty. " +
-             "Never change after content ships — save files reference this ID.")]
+             "Never change after content ships -- save files reference this ID.")]
     [SerializeField] private string itemId;
 
     [Tooltip("Human-readable name shown in the inventory UI.")]
@@ -36,14 +36,14 @@ public class PlaceableItem : ScriptableObject
     [Tooltip("Prefab instantiated when the item is placed on the grid.")]
     [SerializeField] private GameObject prefab;
 
-    [Tooltip("Grid footprint in cells (width × depth). Minimum 1×1.")]
+    [Tooltip("Grid footprint in cells (width ? depth). Minimum 1?1.")]
     [SerializeField] private Vector2Int size = Vector2Int.one;
 
-    // ── Progression / unlock data ─────────────────────────────────────────────
+    // -- Progression / unlock data ---------------------------------------------
 
     [Header("Category & Rarity")]
     [Tooltip("The decoration category this item belongs to. " +
-             "Leave null for uncategorised items — they are always available.")]
+             "Leave null for uncategorised items -- they are always available.")]
     [SerializeField] private ItemCategory category;
 
     [Tooltip("Rarity tier. Affects drop weight in reward pools and UI badge colour.")]
@@ -61,7 +61,7 @@ public class PlaceableItem : ScriptableObject
              "Leave null if the item is available as soon as its category is unlocked.")]
     [SerializeField] private UnlockRequirement unlockRequirement;
 
-    // ── Public accessors ──────────────────────────────────────────────────────
+    // -- Public accessors ------------------------------------------------------
 
     // Core
     public string      ItemId       => itemId;
@@ -77,7 +77,7 @@ public class PlaceableItem : ScriptableObject
     public SeasonTag[]        SeasonalTags      => seasonalTags;
     public UnlockRequirement  UnlockRequirement => unlockRequirement;
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // -- Helpers ---------------------------------------------------------------
 
     /// <summary>
     /// Returns true if this item is tagged with the given season.
@@ -90,7 +90,7 @@ public class PlaceableItem : ScriptableObject
         return false;
     }
 
-    // ── Editor validation ─────────────────────────────────────────────────────
+    // -- Editor validation -----------------------------------------------------
 
     private void OnValidate()
     {

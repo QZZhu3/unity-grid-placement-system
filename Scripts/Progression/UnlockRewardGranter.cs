@@ -5,7 +5,7 @@ using System.Collections.Generic;
 /// Automatically grants items to the player's inventory the FIRST TIME a category unlocks.
 ///
 /// Uses a HashSet to track which categories have already been granted, so items are
-/// never awarded twice — even across save/load cycles or multiple Play sessions.
+/// never awarded twice -- even across save/load cycles or multiple Play sessions.
 ///
 /// Attach this to the ProgressionSystem GameObject.
 /// InventoryManager and UnlockManager are auto-discovered at startup.
@@ -17,7 +17,7 @@ using System.Collections.Generic;
 /// </summary>
 public class UnlockRewardGranter : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
 
     [Header("Dependencies (auto-discovered if left empty)")]
     [SerializeField] private UnlockManager    unlockManager;
@@ -27,7 +27,7 @@ public class UnlockRewardGranter : MonoBehaviour
     [Tooltip("Each entry defines which items (and how many) to grant when a specific category unlocks.")]
     [SerializeField] private List<CategoryGrantEntry> grantsOnUnlock = new List<CategoryGrantEntry>();
 
-    // ── Runtime state ─────────────────────────────────────────────────────────
+    // -- Runtime state ---------------------------------------------------------
 
     /// <summary>
     /// Tracks category IDs that have already been granted this session.
@@ -35,7 +35,7 @@ public class UnlockRewardGranter : MonoBehaviour
     /// </summary>
     private HashSet<string> alreadyGranted = new HashSet<string>();
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Awake()
     {
@@ -58,7 +58,7 @@ public class UnlockRewardGranter : MonoBehaviour
             unlockManager.OnCategoryUnlocked -= HandleCategoryUnlocked;
     }
 
-    // ── Event handler ─────────────────────────────────────────────────────────
+    // -- Event handler ---------------------------------------------------------
 
     private void HandleCategoryUnlocked(ItemCategory category)
     {
@@ -85,7 +85,7 @@ public class UnlockRewardGranter : MonoBehaviour
         }
     }
 
-    // ── Save integration ──────────────────────────────────────────────────────
+    // -- Save integration ------------------------------------------------------
 
     /// <summary>
     /// Call this after loading a save to pre-populate the already-granted set
@@ -99,7 +99,7 @@ public class UnlockRewardGranter : MonoBehaviour
     }
 }
 
-// ── Supporting types ──────────────────────────────────────────────────────────
+// -- Supporting types ----------------------------------------------------------
 
 [System.Serializable]
 public class CategoryGrantEntry

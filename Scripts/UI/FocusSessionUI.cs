@@ -12,7 +12,7 @@ using TMPro;
 ///   - Forward button clicks to FocusSessionRunner
 ///
 /// This script contains NO reward logic. All rewards flow through
-/// FocusSessionRunner → ActivityManager → RewardManager.
+/// FocusSessionRunner -> ActivityManager -> RewardManager.
 ///
 /// Setup:
 ///   Attach to a FocusSessionPanel GameObject in the Canvas.
@@ -21,21 +21,21 @@ using TMPro;
 ///
 /// Hierarchy suggestion:
 ///   Canvas
-///   └── FocusSessionPanel
-///       ├── TimerText          (TextMeshProUGUI)
-///       ├── SessionNameText    (TextMeshProUGUI)
-///       ├── ProgressBar        (Slider, optional)
-///       ├── StartButton        (Button)
-///       ├── PauseResumeButton  (Button)
-///       │   └── Label          (TextMeshProUGUI)
-///       ├── CancelButton       (Button)
-///       └── CompletionPopup    (GameObject, inactive by default)
-///           ├── CompletionText (TextMeshProUGUI)
-///           └── DismissButton  (Button)
+///   +-- FocusSessionPanel
+///       +-- TimerText          (TextMeshProUGUI)
+///       +-- SessionNameText    (TextMeshProUGUI)
+///       +-- ProgressBar        (Slider, optional)
+///       +-- StartButton        (Button)
+///       +-- PauseResumeButton  (Button)
+///       |   +-- Label          (TextMeshProUGUI)
+///       +-- CancelButton       (Button)
+///       +-- CompletionPopup    (GameObject, inactive by default)
+///           +-- CompletionText (TextMeshProUGUI)
+///           +-- DismissButton  (Button)
 /// </summary>
 public class FocusSessionUI : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
 
     [Header("Dependencies (auto-discovered if left empty)")]
     [SerializeField] private FocusSessionRunner sessionRunner;
@@ -61,11 +61,11 @@ public class FocusSessionUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI completionText;
     [SerializeField] private Button          dismissButton;
 
-    // ── Runtime state ─────────────────────────────────────────────────────────
+    // -- Runtime state ---------------------------------------------------------
 
     private FocusSessionDefinition activeDefinition;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Awake()
     {
@@ -109,7 +109,7 @@ public class FocusSessionUI : MonoBehaviour
         sessionRunner.OnTimerTick        -= HandleTimerTick;
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // -- Public API ------------------------------------------------------------
 
     /// <summary>Override the default definition before the player taps Start.</summary>
     public void SetDefinition(FocusSessionDefinition definition)
@@ -119,7 +119,7 @@ public class FocusSessionUI : MonoBehaviour
             sessionNameText.text = definition.DisplayName;
     }
 
-    // ── Button handlers ───────────────────────────────────────────────────────
+    // -- Button handlers -------------------------------------------------------
 
     private void OnStartClicked()
     {
@@ -152,7 +152,7 @@ public class FocusSessionUI : MonoBehaviour
         RefreshIdleState();
     }
 
-    // ── Runner event handlers ─────────────────────────────────────────────────
+    // -- Runner event handlers -------------------------------------------------
 
     private void HandleSessionStarted(FocusSessionDefinition def)
     {
@@ -193,7 +193,7 @@ public class FocusSessionUI : MonoBehaviour
             progressBar.value = sessionRunner.Progress;
     }
 
-    // ── Display helpers ───────────────────────────────────────────────────────
+    // -- Display helpers -------------------------------------------------------
 
     private void UpdateTimerDisplay(float seconds)
     {

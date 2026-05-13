@@ -6,7 +6,7 @@ using PlacementSystem.SaveSystem;
 /// Saves and restores the state of <see cref="PlayerProgressionManager"/> and
 /// <see cref="UnlockManager"/> via the shared <see cref="GameSaveData"/> schema.
 ///
-/// All data is serialized as stable string IDs only — never as direct asset references
+/// All data is serialized as stable string IDs only -- never as direct asset references
 /// or asset names. This means assets can be renamed or moved without breaking save files.
 ///
 /// Attach this component to the same GameObject as <see cref="PlayerProgressionManager"/>
@@ -35,14 +35,14 @@ public class ProgressionSaveHandler : MonoBehaviour, ISaveable
             rewardGranter = GetComponent<UnlockRewardGranter>();
     }
 
-    // ── ISaveable ─────────────────────────────────────────────────────────────
+    // -- ISaveable -------------------------------------------------------------
 
     /// <summary>
     /// Writes progression and unlock state into <paramref name="data"/> using IDs only.
     /// </summary>
     public void PopulateSaveData(GameSaveData data)
     {
-        // ── Progression ──────────────────────────────────────────────────────
+        // -- Progression ------------------------------------------------------
         if (progressionManager != null)
         {
             var (level, xp, milestoneIds) = progressionManager.GetSaveState();
@@ -53,7 +53,7 @@ public class ProgressionSaveHandler : MonoBehaviour, ISaveable
             data.progressionData.achievedMilestoneIds.AddRange(milestoneIds);
         }
 
-        // ── Unlock state ─────────────────────────────────────────────────────
+        // -- Unlock state -----------------------------------------------------
         if (unlockManager != null)
         {
             var (categoryIds, themeIds) = unlockManager.GetSaveState();
@@ -73,7 +73,7 @@ public class ProgressionSaveHandler : MonoBehaviour, ISaveable
     /// </summary>
     public void LoadFromSaveData(GameSaveData data)
     {
-        // ── Progression (must load before unlock evaluation) ─────────────────
+        // -- Progression (must load before unlock evaluation) -----------------
         if (progressionManager != null)
         {
             progressionManager.LoadState(
@@ -82,7 +82,7 @@ public class ProgressionSaveHandler : MonoBehaviour, ISaveable
                 data.progressionData.achievedMilestoneIds);
         }
 
-        // ── Unlock state ─────────────────────────────────────────────────────
+        // -- Unlock state -----------------------------------------------------
         if (unlockManager != null)
         {
             // Mark previously-unlocked categories as already granted BEFORE

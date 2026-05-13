@@ -8,25 +8,25 @@ using UnityEngine;
 /// independently. This keeps RewardManager decoupled from progression and chest logic.
 ///
 /// Reward flow:
-///   Caller → CompleteTask(xpMultiplier)
-///                ↓
+///   Caller -> CompleteTask(xpMultiplier)
+///                ?
 ///          OnRewardGranted(xp, chestTicks) fired
-///                ↓
-///   ProgressionRewardListener → PlayerProgressionManager.AddXp()
-///   ChestRewardListener       → ChestProgressManager.AddProgress()
+///                ?
+///   ProgressionRewardListener -> PlayerProgressionManager.AddXp()
+///   ChestRewardListener       -> ChestProgressManager.AddProgress()
 ///
 /// Chest opening flow:
-///   Caller → OpenNextChest()
-///                ↓
+///   Caller -> OpenNextChest()
+///                ?
 ///          OnChestOpened(ChestOpenResult) fired
-///                ↓
+///                ?
 ///   UI / analytics subscribe and react
 ///
 /// Attach to: ProgressionSystem (or a dedicated ChestSystem GameObject).
 /// </summary>
 public class RewardManager : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
     [Header("Dependencies (auto-discovered if left empty)")]
     [SerializeField] private ChestQueueManager chestQueue;
     [SerializeField] private ItemRewardPool    rewardPool;
@@ -43,10 +43,10 @@ public class RewardManager : MonoBehaviour
     [Tooltip("Current active season. Leave empty for no seasonal filtering.")]
     [SerializeField] private SeasonTag activeSeason;
 
-    // ── Runtime ───────────────────────────────────────────────────────────────
+    // -- Runtime ---------------------------------------------------------------
     private RewardDrawService drawService;
 
-    // ── Events ────────────────────────────────────────────────────────────────
+    // -- Events ----------------------------------------------------------------
 
     /// <summary>
     /// Fired when a task is completed.
@@ -64,7 +64,7 @@ public class RewardManager : MonoBehaviour
     /// <summary>Fired when a chest is successfully opened with rewards.</summary>
     public event System.Action<ChestOpenResult> OnChestOpened;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
     private void Awake()
     {
         if (chestQueue == null)
@@ -80,12 +80,12 @@ public class RewardManager : MonoBehaviour
             Debug.LogWarning("[RewardManager] ItemRewardPool not found. Chest opening will not work.");
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // -- Public API ------------------------------------------------------------
 
     /// <summary>
     /// Call this when a task is completed.
     /// Fires <see cref="OnRewardGranted"/> and <see cref="OnTaskCompleted"/>.
-    /// Does NOT call AddXp or AddProgress directly — listeners handle that.
+    /// Does NOT call AddXp or AddProgress directly -- listeners handle that.
     /// </summary>
     /// <param name="xpMultiplier">Multiplier applied to the base XP value (default 1).</param>
     public void CompleteTask(float xpMultiplier = 1f)
@@ -149,7 +149,7 @@ public class RewardManager : MonoBehaviour
         return result;
     }
 
-    // ── Debug ─────────────────────────────────────────────────────────────────
+    // -- Debug -----------------------------------------------------------------
     [ContextMenu("Debug: Complete Task")]
     private void DebugCompleteTask() => CompleteTask();
 

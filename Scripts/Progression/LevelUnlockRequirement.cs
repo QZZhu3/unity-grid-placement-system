@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// Unlock requirement satisfied when the player reaches a minimum level.
 ///
-/// Create via: Assets → Placement System → Progression → Unlock Requirement → Level
+/// Create via: Assets -> Placement System -> Progression -> Unlock Requirement -> Level
 /// </summary>
 [CreateAssetMenu(
     fileName  = "Unlock_Level_",

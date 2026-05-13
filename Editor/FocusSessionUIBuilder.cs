@@ -7,23 +7,23 @@ using TMPro;
 /// <summary>
 /// Editor utility that builds the entire FocusSessionPanel UI hierarchy inside the scene Canvas.
 ///
-/// Usage: Unity menu → Tools → Placement System → Build Focus Session UI
+/// Usage: Unity menu -> Tools -> Placement System -> Build Focus Session UI
 ///
 /// What it creates:
 ///   Canvas
-///   └── FocusSessionPanel        (CanvasGroup, FocusSessionUI script, inactive by default)
-///       ├── Backdrop             (full-screen semi-transparent Image, closes panel on click)
-///       ├── PanelBackground      (centred card)
-///       │   ├── SessionNameText  (TextMeshProUGUI)
-///       │   ├── TimerText        (TextMeshProUGUI, large)
-///       │   ├── ProgressBar      (Slider)
-///       │   ├── StartButton      (Button + TMP "Start")
-///       │   ├── PauseResumeButton(Button + TMP "Pause", inactive by default)
-///       │   ├── CancelButton     (Button + TMP "Cancel", inactive by default)
-///       │   └── CompletionPopup  (inactive by default)
-///       │       ├── PopupBackground
-///       │       ├── CompletionText
-///       │       └── DismissButton
+///   +-- FocusSessionPanel        (CanvasGroup, FocusSessionUI script, inactive by default)
+///       +-- Backdrop             (full-screen semi-transparent Image, closes panel on click)
+///       +-- PanelBackground      (centred card)
+///       |   +-- SessionNameText  (TextMeshProUGUI)
+///       |   +-- TimerText        (TextMeshProUGUI, large)
+///       |   +-- ProgressBar      (Slider)
+///       |   +-- StartButton      (Button + TMP "Start")
+///       |   +-- PauseResumeButton(Button + TMP "Pause", inactive by default)
+///       |   +-- CancelButton     (Button + TMP "Cancel", inactive by default)
+///       |   +-- CompletionPopup  (inactive by default)
+///       |       +-- PopupBackground
+///       |       +-- CompletionText
+///       |       +-- DismissButton
 ///
 /// All FocusSessionUI fields are wired automatically.
 /// </summary>
@@ -32,7 +32,7 @@ public static class FocusSessionUIBuilder
     [MenuItem("Tools/Placement System/Build Focus Session UI")]
     public static void BuildFocusSessionUI()
     {
-        // ── Find Canvas ───────────────────────────────────────────────────────
+        // -- Find Canvas -------------------------------------------------------
         Canvas canvas = Object.FindAnyObjectByType<Canvas>();
         if (canvas == null)
         {
@@ -42,7 +42,7 @@ public static class FocusSessionUIBuilder
         }
         Transform canvasT = canvas.transform;
 
-        // ── Guard: don't build twice ──────────────────────────────────────────
+        // -- Guard: don't build twice ------------------------------------------
         if (canvasT.Find("FocusSessionPanel") != null)
         {
             bool replace = EditorUtility.DisplayDialog("Focus Session UI Builder",
@@ -51,7 +51,7 @@ public static class FocusSessionUIBuilder
             Object.DestroyImmediate(canvasT.Find("FocusSessionPanel").gameObject);
         }
 
-        // ── Root panel ────────────────────────────────────────────────────────
+        // -- Root panel --------------------------------------------------------
         GameObject panelGO = new GameObject("FocusSessionPanel");
         panelGO.transform.SetParent(canvasT, false);
         RectTransform panelRect = panelGO.AddComponent<RectTransform>();
@@ -62,7 +62,7 @@ public static class FocusSessionUIBuilder
         panelCG.blocksRaycasts = false;
         panelGO.SetActive(true); // stays active; hidden via CanvasGroup
 
-        // ── Backdrop ──────────────────────────────────────────────────────────
+        // -- Backdrop ----------------------------------------------------------
         GameObject backdropGO = new GameObject("Backdrop");
         backdropGO.transform.SetParent(panelGO.transform, false);
         RectTransform backdropRect = backdropGO.AddComponent<RectTransform>();
@@ -71,7 +71,7 @@ public static class FocusSessionUIBuilder
         backdropImg.color = new Color(0f, 0f, 0f, 0.6f);
         backdropGO.AddComponent<Button>(); // clicking backdrop can close panel later
 
-        // ── Panel card ────────────────────────────────────────────────────────
+        // -- Panel card --------------------------------------------------------
         GameObject bgGO = new GameObject("PanelBackground");
         bgGO.transform.SetParent(panelGO.transform, false);
         RectTransform bgRect = bgGO.AddComponent<RectTransform>();
@@ -83,7 +83,7 @@ public static class FocusSessionUIBuilder
         Image bgImg = bgGO.AddComponent<Image>();
         bgImg.color = new Color(0.12f, 0.10f, 0.18f, 1f);
 
-        // ── Session name text ─────────────────────────────────────────────────
+        // -- Session name text -------------------------------------------------
         GameObject nameGO = CreateTMPText(bgGO.transform, "SessionNameText", "Standard Focus Session");
         RectTransform nameRect = nameGO.GetComponent<RectTransform>();
         nameRect.anchorMin        = new Vector2(0f, 1f);
@@ -95,7 +95,7 @@ public static class FocusSessionUIBuilder
         nameTMP.fontSize  = 20f;
         nameTMP.fontStyle = FontStyles.Bold;
 
-        // ── Timer text ────────────────────────────────────────────────────────
+        // -- Timer text --------------------------------------------------------
         GameObject timerGO = CreateTMPText(bgGO.transform, "TimerText", "25:00");
         RectTransform timerRect = timerGO.GetComponent<RectTransform>();
         timerRect.anchorMin        = new Vector2(0f, 1f);
@@ -107,7 +107,7 @@ public static class FocusSessionUIBuilder
         timerTMP.fontSize  = 64f;
         timerTMP.fontStyle = FontStyles.Bold;
 
-        // ── Progress bar ──────────────────────────────────────────────────────
+        // -- Progress bar ------------------------------------------------------
         GameObject sliderGO = new GameObject("ProgressBar");
         sliderGO.transform.SetParent(bgGO.transform, false);
         RectTransform sliderRect = sliderGO.AddComponent<RectTransform>();
@@ -143,7 +143,7 @@ public static class FocusSessionUIBuilder
         fillImg.color = new Color(0.55f, 0.40f, 0.80f, 1f);
         slider.fillRect = fillRect;
 
-        // ── Buttons ───────────────────────────────────────────────────────────
+        // -- Buttons -----------------------------------------------------------
         float btnY     = -240f;
         float btnW     = 180f;
         float btnH     = 56f;
@@ -177,7 +177,7 @@ public static class FocusSessionUIBuilder
         cancelRect.sizeDelta        = new Vector2(btnW, btnH);
         cancelGO.SetActive(false);
 
-        // ── Completion popup ──────────────────────────────────────────────────
+        // -- Completion popup --------------------------------------------------
         GameObject popupGO = new GameObject("CompletionPopup");
         popupGO.transform.SetParent(bgGO.transform, false);
         RectTransform popupRect = popupGO.AddComponent<RectTransform>();
@@ -209,7 +209,7 @@ public static class FocusSessionUIBuilder
         dismissRect.anchoredPosition = new Vector2(0f, -60f);
         dismissRect.sizeDelta        = new Vector2(140f, 52f);
 
-        // ── Attach and wire FocusSessionUI ────────────────────────────────────
+        // -- Attach and wire FocusSessionUI ------------------------------------
         FocusSessionUI ui = panelGO.AddComponent<FocusSessionUI>();
 
         SerializedObject so = new SerializedObject(ui);
@@ -225,7 +225,7 @@ public static class FocusSessionUIBuilder
         so.FindProperty("dismissButton")    .objectReferenceValue = dismissGO.GetComponent<Button>();
         so.ApplyModifiedProperties();
 
-        // ── Mark scene dirty ──────────────────────────────────────────────────
+        // -- Mark scene dirty --------------------------------------------------
         EditorUtility.SetDirty(panelGO);
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
             UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
@@ -242,7 +242,7 @@ public static class FocusSessionUIBuilder
         Selection.activeGameObject = panelGO;
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // -- Helpers ---------------------------------------------------------------
 
     private static void StretchFull(RectTransform rect)
     {

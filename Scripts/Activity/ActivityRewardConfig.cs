@@ -7,7 +7,7 @@ using UnityEngine;
 /// All values are multipliers applied on top of RewardManager's base rates.
 /// Setting a multiplier to 0 disables that reward type for this activity.
 ///
-/// Serialized inline inside ActivityDefinition — not a ScriptableObject.
+/// Serialized inline inside ActivityDefinition -- not a ScriptableObject.
 /// </summary>
 [Serializable]
 public class ActivityRewardConfig

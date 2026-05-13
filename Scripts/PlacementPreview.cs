@@ -16,7 +16,7 @@ public class PlacementPreview : MonoBehaviour
     private Renderer[] renderers;
     private bool       isValid = true;
 
-    // ── Original material storage ─────────────────────────────────────────────
+    // -- Original material storage ---------------------------------------------
 
     /// <summary>
     /// Per-renderer snapshot of the materials that were present before the
@@ -24,7 +24,7 @@ public class PlacementPreview : MonoBehaviour
     /// </summary>
     private Material[][] originalMaterials;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Awake()
     {
@@ -37,7 +37,7 @@ public class PlacementPreview : MonoBehaviour
         ApplyMaterial(validMaterial);
     }
 
-    // ── Original material helpers ─────────────────────────────────────────────
+    // -- Original material helpers ---------------------------------------------
 
     private void CaptureOriginalMaterials()
     {
@@ -68,7 +68,7 @@ public class PlacementPreview : MonoBehaviour
         }
     }
 
-    // ── Preview material helpers ──────────────────────────────────────────────
+    // -- Preview material helpers ----------------------------------------------
 
     /// <summary>
     /// Creates semi-transparent materials for valid (green) and invalid (red) states.
@@ -86,7 +86,7 @@ public class PlacementPreview : MonoBehaviour
     }
 
     /// <summary>
-    /// Finds a compatible transparent shader — prefers URP Lit, falls back to Built-in Standard.
+    /// Finds a compatible transparent shader -- prefers URP Lit, falls back to Built-in Standard.
     /// </summary>
     private Shader FindCompatibleTransparentShader()
     {

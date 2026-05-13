@@ -20,7 +20,7 @@ using TMPro;
 /// </summary>
 public class ChestNotificationButton : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
 
     [Header("Dependencies (auto-discovered if left empty)")]
     [SerializeField] private ChestQueueManager chestQueue;
@@ -36,7 +36,7 @@ public class ChestNotificationButton : MonoBehaviour
     [Tooltip("Bool parameter name on the Animator to set true when chests are available.")]
     [SerializeField] private string pulseParam = "HasChest";
 
-    // ── Events ────────────────────────────────────────────────────────────────
+    // -- Events ----------------------------------------------------------------
 
     /// <summary>
     /// Fired when the player taps the notification button.
@@ -44,7 +44,7 @@ public class ChestNotificationButton : MonoBehaviour
     /// </summary>
     public event System.Action OnOpenRequested;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Awake()
     {
@@ -58,7 +58,7 @@ public class ChestNotificationButton : MonoBehaviour
         if (button != null)
             button.onClick.AddListener(HandleButtonClicked);
 
-        // Hide visually at startup — we stay active so we can receive events.
+        // Hide visually at startup -- we stay active so we can receive events.
         // The actual show/hide is driven by RefreshBadge via the queue event.
         SetVisible(false);
     }
@@ -85,7 +85,7 @@ public class ChestNotificationButton : MonoBehaviour
             chestQueue.OnQueueCountChanged -= RefreshBadge;
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // -- Public API ------------------------------------------------------------
 
     /// <summary>Manually refreshes the badge display. Called by ChestUIController after panel closes.</summary>
     public void Refresh()
@@ -94,7 +94,7 @@ public class ChestNotificationButton : MonoBehaviour
             RefreshBadge(chestQueue.PendingCount);
     }
 
-    // ── Private ───────────────────────────────────────────────────────────────
+    // -- Private ---------------------------------------------------------------
 
     private void HandleButtonClicked()
     {
@@ -127,7 +127,7 @@ public class ChestNotificationButton : MonoBehaviour
     /// </summary>
     private void SetVisible(bool visible)
     {
-        // Try CanvasGroup first (preferred — keeps raycasts off when hidden)
+        // Try CanvasGroup first (preferred -- keeps raycasts off when hidden)
         CanvasGroup cg = GetComponent<CanvasGroup>();
         if (cg != null)
         {

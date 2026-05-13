@@ -17,14 +17,14 @@ public class ChestUIController : MonoBehaviour
 {
     private const string InputBlockReason = "chest_ui";
 
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
 
     [Header("Dependencies (auto-discovered if left empty)")]
     [SerializeField] private RewardManager           rewardManager;
     [SerializeField] private ChestNotificationButton notificationButton;
     [SerializeField] private ChestOpeningPanel       openingPanel;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Awake()
     {
@@ -58,7 +58,7 @@ public class ChestUIController : MonoBehaviour
             openingPanel.OnPanelClosed -= HandlePanelClosed;
     }
 
-    // ── Handlers ──────────────────────────────────────────────────────────────
+    // -- Handlers --------------------------------------------------------------
 
     private void HandleOpenRequested()
     {

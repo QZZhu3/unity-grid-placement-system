@@ -16,14 +16,14 @@ using UnityEngine;
 /// </summary>
 public static class GameInputState
 {
-    // ── State ─────────────────────────────────────────────────────────────────
+    // -- State -----------------------------------------------------------------
 
     private static readonly HashSet<string> activeBlockers = new HashSet<string>();
 
     /// <summary>True if any system has requested input to be blocked.</summary>
     public static bool IsInputBlocked => activeBlockers.Count > 0;
 
-    // ── Events ────────────────────────────────────────────────────────────────
+    // -- Events ----------------------------------------------------------------
 
     /// <summary>
     /// Fired whenever the blocked state changes.
@@ -31,7 +31,7 @@ public static class GameInputState
     /// </summary>
     public static event Action<bool> OnInputBlockChanged;
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // -- Public API ------------------------------------------------------------
 
     /// <summary>
     /// Adds a named blocker. Input will be blocked until all blockers are removed.

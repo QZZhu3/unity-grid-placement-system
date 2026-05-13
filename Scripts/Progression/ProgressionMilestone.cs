@@ -13,7 +13,7 @@ using UnityEngine;
 ///   - Manual:     achieved only when explicitly triggered via
 ///                 <see cref="PlayerProgressionManager.AchieveMilestone"/> (story events, etc.).
 ///
-/// Create via: Assets → Placement System → Progression → Progression Milestone
+/// Create via: Assets -> Placement System -> Progression -> Progression Milestone
 /// </summary>
 [CreateAssetMenu(
     fileName = "Milestone_",
@@ -51,7 +51,7 @@ public class ProgressionMilestone : ScriptableObject
     [Tooltip("XP awarded to the player when this milestone is first achieved.")]
     [SerializeField] [Min(0)] private int xpReward = 50;
 
-    // ── Public accessors ──────────────────────────────────────────────────────
+    // -- Public accessors ------------------------------------------------------
 
     public string        Id                 => id;
     public string        DisplayName        => displayName;
@@ -60,11 +60,11 @@ public class ProgressionMilestone : ScriptableObject
     public int           RequiredLevel      => requiredLevel;
     public int           XpReward           => xpReward;
 
-    // ── Evaluation ────────────────────────────────────────────────────────────
+    // -- Evaluation ------------------------------------------------------------
 
     /// <summary>
     /// Returns true if this milestone's automatic condition is currently satisfied.
-    /// Manual milestones always return false here — they must be triggered explicitly.
+    /// Manual milestones always return false here -- they must be triggered explicitly.
     /// </summary>
     public bool IsConditionMet(PlayerProgressionManager progression)
     {

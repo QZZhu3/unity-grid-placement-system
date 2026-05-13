@@ -16,14 +16,14 @@ using UnityEngine;
 /// </summary>
 public class PlacementFactory : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
 
     [Header("Dependencies (auto-discovered if left empty)")]
     [SerializeField] private GridManager          gridManager;
     [SerializeField] private PlacementValidator   validator;
     [SerializeField] private MouseInputController mouseInput;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Awake()
     {
@@ -32,7 +32,7 @@ public class PlacementFactory : MonoBehaviour
         if (mouseInput  == null) mouseInput  = FindAnyObjectByType<MouseInputController>();
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // -- Public API ------------------------------------------------------------
 
     /// <summary>
     /// Creates a new DraggableItem from a PlaceableItem prefab (for new placements from inventory).
@@ -74,7 +74,7 @@ public class PlacementFactory : MonoBehaviour
             col.enabled = true;
     }
 
-    // ── Private ───────────────────────────────────────────────────────────────
+    // -- Private ---------------------------------------------------------------
 
     private DraggableItem SetupDraggable(GameObject go, PlaceableItem itemData, Vector2Int? originalPos)
     {

@@ -14,13 +14,13 @@ using PlacementSystem.SaveSystem;
 ///
 /// Loads:
 ///   - Restores task progress without triggering chest-earned events
-///   - Restores pending chest queue using chest ID → asset lookup
+///   - Restores pending chest queue using chest ID -> asset lookup
 ///
 /// Attach to: ProgressionSystem (or ChestSystem GameObject alongside the other chest components).
 /// </summary>
 public class ChestSaveHandler : MonoBehaviour, ISaveable
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
     [Header("Dependencies (auto-discovered if left empty)")]
     [SerializeField] private ChestProgressManager chestProgress;
     [SerializeField] private ChestQueueManager    chestQueue;
@@ -29,7 +29,7 @@ public class ChestSaveHandler : MonoBehaviour, ISaveable
     [Tooltip("All ChestDefinition assets in the game. Used to resolve IDs on load.")]
     [SerializeField] private List<ChestDefinition> allChests = new List<ChestDefinition>();
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
     private void Awake()
     {
         if (chestProgress == null)
@@ -38,7 +38,7 @@ public class ChestSaveHandler : MonoBehaviour, ISaveable
             chestQueue = FindAnyObjectByType<ChestQueueManager>();
     }
 
-    // ── ISaveable ─────────────────────────────────────────────────────────────
+    // -- ISaveable -------------------------------------------------------------
 
     public void PopulateSaveData(GameSaveData data)
     {
@@ -59,7 +59,7 @@ public class ChestSaveHandler : MonoBehaviour, ISaveable
             chestQueue.LoadQueue(data.chestData.pendingChestIds, ResolveChestId);
     }
 
-    // ── Private helpers ───────────────────────────────────────────────────────
+    // -- Private helpers -------------------------------------------------------
 
     private ChestDefinition ResolveChestId(string id)
     {

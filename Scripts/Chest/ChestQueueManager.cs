@@ -17,11 +17,11 @@ using UnityEngine;
 /// </summary>
 public class ChestQueueManager : MonoBehaviour
 {
-    // ── Runtime state ─────────────────────────────────────────────────────────
+    // -- Runtime state ---------------------------------------------------------
 
     private readonly Queue<ChestQueueEntry> pendingChests = new Queue<ChestQueueEntry>();
 
-    // ── Events ────────────────────────────────────────────────────────────────
+    // -- Events ----------------------------------------------------------------
 
     /// <summary>Fired when a new chest entry is added to the queue.</summary>
     public event System.Action<ChestQueueEntry> OnChestEnqueued;
@@ -32,7 +32,7 @@ public class ChestQueueManager : MonoBehaviour
     /// <summary>Fired whenever the queue count changes.</summary>
     public event System.Action<int> OnQueueCountChanged;
 
-    // ── Public accessors ──────────────────────────────────────────────────────
+    // -- Public accessors ------------------------------------------------------
 
     /// <summary>Number of unopened chests waiting in the queue.</summary>
     public int PendingCount => pendingChests.Count;
@@ -44,7 +44,7 @@ public class ChestQueueManager : MonoBehaviour
     public ChestQueueEntry PeekNext() =>
         pendingChests.Count > 0 ? pendingChests.Peek() : null;
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // -- Public API ------------------------------------------------------------
 
     /// <summary>
     /// Adds a chest to the end of the queue using a pre-built entry.
@@ -117,7 +117,7 @@ public class ChestQueueManager : MonoBehaviour
         return ids;
     }
 
-    // ── Debug ─────────────────────────────────────────────────────────────────
+    // -- Debug -----------------------------------------------------------------
 
     [ContextMenu("Debug: Print Queue")]
     private void DebugPrint()

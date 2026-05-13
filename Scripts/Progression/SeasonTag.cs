@@ -10,7 +10,7 @@ using UnityEngine;
 /// Using ScriptableObject references instead of raw strings ensures
 /// refactor safety, Inspector autocomplete, and no typo-based bugs.
 ///
-/// Create via: Assets → Placement System → Progression → Season Tag
+/// Create via: Assets -> Placement System -> Progression -> Season Tag
 /// </summary>
 [CreateAssetMenu(
     fileName = "Season_",
@@ -32,7 +32,7 @@ public class SeasonTag : ScriptableObject
     [Tooltip("Optional icon representing this season.")]
     [SerializeField] private Sprite icon;
 
-    // ── Public accessors ──────────────────────────────────────────────────────
+    // -- Public accessors ------------------------------------------------------
 
     public string Id          => id;
     public string DisplayName => displayName;

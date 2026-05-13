@@ -39,7 +39,7 @@ public class RewardBundle
     /// <summary>All item rewards in this bundle.</summary>
     public List<RewardResult> Items = new List<RewardResult>();
 
-    // ── Future extension points ───────────────────────────────────────────────
+    // -- Future extension points -----------------------------------------------
     // public int CoinsGranted;
     // public int ScrapGranted;
     // public List<CurrencyReward> CurrencyRewards;

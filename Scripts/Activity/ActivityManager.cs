@@ -10,22 +10,22 @@ using UnityEngine;
 ///   - Acts as the single entry point for all activity types
 ///
 /// Architecture:
-///   UI scripts → ActivityManager.CompleteActivity(definition)
-///                      ↓
-///              RewardManager.CompleteTask(xpMultiplier) × chestProgressTicks
-///                      ↓
-///              OnRewardGranted fired → ProgressionRewardListener + ChestRewardListener
+///   UI scripts -> ActivityManager.CompleteActivity(definition)
+///                      ?
+///              RewardManager.CompleteTask(xpMultiplier) ? chestProgressTicks
+///                      ?
+///              OnRewardGranted fired -> ProgressionRewardListener + ChestRewardListener
 ///
 /// Attach to: ProgressionSystem (alongside RewardManager)
 /// </summary>
 public class ActivityManager : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
 
     [Header("Dependencies (auto-discovered if left empty)")]
     [SerializeField] private RewardManager rewardManager;
 
-    // ── Events ────────────────────────────────────────────────────────────────
+    // -- Events ----------------------------------------------------------------
 
     /// <summary>Fired when any activity is completed. Arg: the completed definition.</summary>
     public event System.Action<ActivityDefinition> OnActivityCompleted;
@@ -33,7 +33,7 @@ public class ActivityManager : MonoBehaviour
     /// <summary>Fired specifically when a Focus Session completes.</summary>
     public event System.Action<FocusSessionDefinition> OnFocusSessionCompleted;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Awake()
     {
@@ -45,7 +45,7 @@ public class ActivityManager : MonoBehaviour
                            "Activities will not grant rewards.");
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // -- Public API ------------------------------------------------------------
 
     /// <summary>
     /// Call this when any activity is completed.
@@ -63,7 +63,7 @@ public class ActivityManager : MonoBehaviour
         Debug.Log($"[ActivityManager] Activity completed: '{definition.DisplayName}' " +
                   $"(type: {definition.ActivityType})");
 
-        // Grant rewards through RewardManager only — never directly here.
+        // Grant rewards through RewardManager only -- never directly here.
         GrantRewards(definition.RewardConfig);
 
         // Fire generic completion event
@@ -74,7 +74,7 @@ public class ActivityManager : MonoBehaviour
             OnFocusSessionCompleted?.Invoke(focusDef);
     }
 
-    // ── Private ───────────────────────────────────────────────────────────────
+    // -- Private ---------------------------------------------------------------
 
     private void GrantRewards(ActivityRewardConfig config)
     {

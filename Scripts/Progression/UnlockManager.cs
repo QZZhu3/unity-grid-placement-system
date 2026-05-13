@@ -4,15 +4,15 @@ using System.Collections.Generic;
 /// <summary>
 /// Single source of truth for all unlock state in the game.
 ///
-/// All systems — reward pools, UI filters, progression milestones — MUST query
+/// All systems -- reward pools, UI filters, progression milestones -- MUST query
 /// this manager rather than performing their own unlock checks. This ensures
 /// unlock logic is never duplicated or hardcoded elsewhere.
 ///
 /// Unlock flow:
-///   PlayerProgressionManager → (OnLevelUp / OnMilestoneAchieved)
-///     → UnlockManager.EvaluateUnlocks()
-///       → fires OnCategoryUnlocked / OnThemeUnlocked
-///         → ItemRewardPool / UI subscribe and react
+///   PlayerProgressionManager -> (OnLevelUp / OnMilestoneAchieved)
+///     -> UnlockManager.EvaluateUnlocks()
+///       -> fires OnCategoryUnlocked / OnThemeUnlocked
+///         -> ItemRewardPool / UI subscribe and react
 ///
 /// Unlock rules (all data-driven via ScriptableObjects):
 ///   - A <see cref="DecorationTheme"/> unlocks when its <see cref="UnlockRequirement"/> is satisfied.
@@ -26,7 +26,7 @@ using System.Collections.Generic;
 /// </summary>
 public class UnlockManager : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
 
     [Header("Dependencies")]
     [SerializeField] private PlayerProgressionManager progression;
@@ -41,12 +41,12 @@ public class UnlockManager : MonoBehaviour
     [SerializeField] private List<StandaloneCategoryEntry> standaloneCategories
         = new List<StandaloneCategoryEntry>();
 
-    // ── Runtime state ─────────────────────────────────────────────────────────
+    // -- Runtime state ---------------------------------------------------------
 
     private HashSet<string> unlockedCategoryIds = new HashSet<string>();
     private HashSet<string> unlockedThemeIds    = new HashSet<string>();
 
-    // ── Events ────────────────────────────────────────────────────────────────
+    // -- Events ----------------------------------------------------------------
 
     /// <summary>Fired the first time a category becomes unlocked. Args: (category).</summary>
     public event System.Action<ItemCategory> OnCategoryUnlocked;
@@ -54,7 +54,7 @@ public class UnlockManager : MonoBehaviour
     /// <summary>Fired the first time a theme becomes unlocked. Args: (theme).</summary>
     public event System.Action<DecorationTheme> OnThemeUnlocked;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Awake()
     {
@@ -73,11 +73,11 @@ public class UnlockManager : MonoBehaviour
         EvaluateUnlocks();
     }
 
-    // ── Public API — Evaluation ───────────────────────────────────────────────
+    // -- Public API -- Evaluation -----------------------------------------------
 
     /// <summary>
     /// Re-evaluates all unlock requirements and fires events for any newly
-    /// satisfied conditions. Safe to call multiple times — already-unlocked
+    /// satisfied conditions. Safe to call multiple times -- already-unlocked
     /// items are skipped.
     /// </summary>
     public void EvaluateUnlocks()
@@ -122,7 +122,7 @@ public class UnlockManager : MonoBehaviour
         }
     }
 
-    // ── Public API — Direct unlock (reward chests, story events) ─────────────
+    // -- Public API -- Direct unlock (reward chests, story events) -------------
 
     /// <summary>
     /// Directly unlocks a category regardless of requirement.
@@ -149,7 +149,7 @@ public class UnlockManager : MonoBehaviour
             GrantCategoryUnlock(cat);
     }
 
-    // ── Public API — Queries (single source of truth) ─────────────────────────
+    // -- Public API -- Queries (single source of truth) -------------------------
 
     /// <summary>
     /// Returns true if the given category is currently unlocked.
@@ -205,7 +205,7 @@ public class UnlockManager : MonoBehaviour
 
     /// <summary>
     /// Filters a list of items and returns only those currently eligible.
-    /// Allocates a new list — cache the result if called frequently.
+    /// Allocates a new list -- cache the result if called frequently.
     /// </summary>
     public List<PlaceableItem> FilterEligible(IEnumerable<PlaceableItem> items)
     {
@@ -227,7 +227,7 @@ public class UnlockManager : MonoBehaviour
         return result;
     }
 
-    // ── Save / Load ───────────────────────────────────────────────────────────
+    // -- Save / Load -----------------------------------------------------------
 
     /// <summary>Restores unlock state from saved data.</summary>
     public void LoadState(IEnumerable<string> categoryIds, IEnumerable<string> themeIds)
@@ -246,7 +246,7 @@ public class UnlockManager : MonoBehaviour
         return (cats, themes);
     }
 
-    // ── Private helpers ───────────────────────────────────────────────────────
+    // -- Private helpers -------------------------------------------------------
 
     private void GrantCategoryUnlock(ItemCategory category)
     {
@@ -257,7 +257,7 @@ public class UnlockManager : MonoBehaviour
         OnCategoryUnlocked?.Invoke(category);
     }
 
-    // ── Debug ─────────────────────────────────────────────────────────────────
+    // -- Debug -----------------------------------------------------------------
 
     [ContextMenu("Debug: Print Unlock State")]
     private void DebugPrintState()
@@ -267,7 +267,7 @@ public class UnlockManager : MonoBehaviour
     }
 }
 
-// ── Supporting types ──────────────────────────────────────────────────────────
+// -- Supporting types ----------------------------------------------------------
 
 /// <summary>
 /// Pairs a standalone category with its own unlock requirement.

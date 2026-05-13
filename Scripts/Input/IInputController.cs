@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Abstracts all player input used by the placement system.
-/// Gameplay scripts depend only on this interface — never on
+/// Gameplay scripts depend only on this interface -- never on
 /// UnityEngine.Input or UnityEngine.InputSystem directly.
 /// Implement this interface to support mouse, touch, or gamepad.
 /// </summary>

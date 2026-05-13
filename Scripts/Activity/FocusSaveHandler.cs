@@ -16,7 +16,7 @@ using PlacementSystem.SaveSystem;
 /// </summary>
 public class FocusSaveHandler : MonoBehaviour, ISaveable
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
 
     [Header("Dependencies (auto-discovered if left empty)")]
     [SerializeField] private FocusSessionRunner sessionRunner;
@@ -25,7 +25,7 @@ public class FocusSaveHandler : MonoBehaviour, ISaveable
              "Used to resolve IDs on load. Drag all your definition assets here.")]
     [SerializeField] private FocusSessionDefinition[] allDefinitions = new FocusSessionDefinition[0];
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Awake()
     {
@@ -33,13 +33,13 @@ public class FocusSaveHandler : MonoBehaviour, ISaveable
             sessionRunner = FindAnyObjectByType<FocusSessionRunner>();
     }
 
-    // ── ISaveable ─────────────────────────────────────────────────────────────
+    // -- ISaveable -------------------------------------------------------------
 
     public void PopulateSaveData(GameSaveData data)
     {
         if (sessionRunner == null) return;
 
-        // GetSaveData returns null when no session is active — that's fine.
+        // GetSaveData returns null when no session is active -- that's fine.
         data.focusSessionData = sessionRunner.GetSaveData();
     }
 

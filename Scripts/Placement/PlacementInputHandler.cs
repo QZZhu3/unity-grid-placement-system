@@ -15,14 +15,14 @@ using UnityEngine;
 /// </summary>
 public class PlacementInputHandler : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
 
     [Header("Dependencies (auto-discovered if left empty)")]
     [SerializeField] private PlacementManager      placementManager;
     [SerializeField] private GridManager           gridManager;
     [SerializeField] private MouseInputController  mouseInput;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Awake()
     {
@@ -42,7 +42,7 @@ public class PlacementInputHandler : MonoBehaviour
         TryPickUpAtCursor();
     }
 
-    // ── Private ───────────────────────────────────────────────────────────────
+    // -- Private ---------------------------------------------------------------
 
     private void TryPickUpAtCursor()
     {

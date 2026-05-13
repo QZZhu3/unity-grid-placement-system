@@ -6,8 +6,8 @@ using UnityEngine;
 /// start/pause/cancel, and signals ActivityManager on completion.
 ///
 /// State machine:
-///   Idle → Running → Paused → Running → Completed
-///                          ↘ Cancelled
+///   Idle -> Running -> Paused -> Running -> Completed
+///                          ? Cancelled
 ///
 /// This class contains no reward logic. On completion it calls
 /// ActivityManager.CompleteActivity(definition), which routes to RewardManager.
@@ -16,12 +16,12 @@ using UnityEngine;
 /// </summary>
 public class FocusSessionRunner : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
 
     [Header("Dependencies (auto-discovered if left empty)")]
     [SerializeField] private ActivityManager activityManager;
 
-    // ── State ─────────────────────────────────────────────────────────────────
+    // -- State -----------------------------------------------------------------
 
     public enum SessionState { Idle, Running, Paused, Completed, Cancelled }
 
@@ -41,7 +41,7 @@ public class FocusSessionRunner : MonoBehaviour
         ? Mathf.Clamp01(1f - RemainingSeconds / TotalSeconds)
         : 0f;
 
-    // ── Events ────────────────────────────────────────────────────────────────
+    // -- Events ----------------------------------------------------------------
 
     public event System.Action<FocusSessionDefinition>        OnSessionStarted;
     public event System.Action<FocusSessionDefinition>        OnSessionPaused;
@@ -51,11 +51,11 @@ public class FocusSessionRunner : MonoBehaviour
     /// <summary>Fired every frame while running. Arg: remaining seconds.</summary>
     public event System.Action<float>                         OnTimerTick;
 
-    // ── Private ───────────────────────────────────────────────────────────────
+    // -- Private ---------------------------------------------------------------
 
     private Coroutine timerCoroutine;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Awake()
     {
@@ -66,7 +66,7 @@ public class FocusSessionRunner : MonoBehaviour
             Debug.LogError("[FocusSessionRunner] ActivityManager not found.");
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // -- Public API ------------------------------------------------------------
 
     /// <summary>
     /// Starts a new focus session. Ignored if a session is already running.
@@ -130,7 +130,7 @@ public class FocusSessionRunner : MonoBehaviour
         OnSessionCancelled?.Invoke(def);
     }
 
-    // ── Save / Load support ───────────────────────────────────────────────────
+    // -- Save / Load support ---------------------------------------------------
 
     /// <summary>
     /// Returns a snapshot of the current session for persistence.
@@ -188,7 +188,7 @@ public class FocusSessionRunner : MonoBehaviour
                   $"({RemainingSeconds:F0}s remaining, paused={data.isPaused})");
     }
 
-    // ── Private ───────────────────────────────────────────────────────────────
+    // -- Private ---------------------------------------------------------------
 
     private IEnumerator TimerRoutine()
     {
@@ -208,7 +208,7 @@ public class FocusSessionRunner : MonoBehaviour
             yield return null;
         }
 
-        // Timer reached zero — session complete
+        // Timer reached zero -- session complete
         CompleteSession();
     }
 
@@ -221,7 +221,7 @@ public class FocusSessionRunner : MonoBehaviour
         Debug.Log($"[FocusSessionRunner] Session completed: '{def?.DisplayName}'");
         OnSessionCompleted?.Invoke(def);
 
-        // Route rewards through ActivityManager → RewardManager
+        // Route rewards through ActivityManager -> RewardManager
         if (activityManager != null && def != null)
             activityManager.CompleteActivity(def);
     }

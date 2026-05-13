@@ -12,21 +12,21 @@ using UnityEngine;
 ///   - Logs XP and level changes to the Console.
 ///
 /// To test quickly:
-///   - Right-click the RewardManager component → "Debug: Complete Task"
+///   - Right-click the RewardManager component -> "Debug: Complete Task"
 ///     to simulate a task without placing items.
-///   - Right-click the PlayerProgressionManager component → "Debug: Add 100 XP"
+///   - Right-click the PlayerProgressionManager component -> "Debug: Add 100 XP"
 ///     to fast-forward through levels.
 /// </summary>
 public class ProgressionBridge : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
 
     [Header("Dependencies (auto-discovered if left empty)")]
     [SerializeField] private PlacementManager          placementManager;
     [SerializeField] private PlayerProgressionManager  progressionManager;
     [SerializeField] private RewardManager             rewardManager;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Awake()
     {
@@ -39,7 +39,7 @@ public class ProgressionBridge : MonoBehaviour
         if (progressionManager == null)
             Debug.LogWarning("[ProgressionBridge] PlayerProgressionManager not found in scene.");
         if (rewardManager == null)
-            Debug.LogWarning("[ProgressionBridge] RewardManager not found — chest progress will not advance.");
+            Debug.LogWarning("[ProgressionBridge] RewardManager not found -- chest progress will not advance.");
     }
 
     private void OnEnable()
@@ -66,7 +66,7 @@ public class ProgressionBridge : MonoBehaviour
         }
     }
 
-    // ── Event handlers ────────────────────────────────────────────────────────
+    // -- Event handlers --------------------------------------------------------
 
     private void HandleItemPlaced(PlacedItem item)
     {

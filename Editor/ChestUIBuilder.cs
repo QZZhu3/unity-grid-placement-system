@@ -7,22 +7,22 @@ using TMPro;
 /// <summary>
 /// Editor utility that builds the entire Chest UI hierarchy inside the scene Canvas.
 ///
-/// Usage: Unity menu → Tools → Placement System → Build Chest UI
+/// Usage: Unity menu -> Tools -> Placement System -> Build Chest UI
 ///
 /// What it creates:
 ///   Canvas
-///   ├── ChestNotificationButton  (Button + ChestNotificationButton script)
-///   │   ├── ChestIcon            (Image)
-///   │   └── BadgeText            (TextMeshProUGUI)
-///   └── ChestOpeningPanel        (inactive by default)
-///       ├── Backdrop             (full-screen semi-transparent Image)
-///       ├── PanelBackground      (centred card Image)
-///       │   ├── ChestTitleText   (TextMeshProUGUI)
-///       │   ├── RewardGrid       (GridLayoutGroup)
-///       │   ├── OpenButton       (Button + TMP)
-///       │   ├── CloseButton      (Button + TMP, inactive)
-///       │   └── SkipButton       (Button + TMP, inactive)
-///       └── Scripts are attached and cross-referenced automatically.
+///   +-- ChestNotificationButton  (Button + ChestNotificationButton script)
+///   |   +-- ChestIcon            (Image)
+///   |   +-- BadgeText            (TextMeshProUGUI)
+///   +-- ChestOpeningPanel        (inactive by default)
+///       +-- Backdrop             (full-screen semi-transparent Image)
+///       +-- PanelBackground      (centred card Image)
+///       |   +-- ChestTitleText   (TextMeshProUGUI)
+///       |   +-- RewardGrid       (GridLayoutGroup)
+///       |   +-- OpenButton       (Button + TMP)
+///       |   +-- CloseButton      (Button + TMP, inactive)
+///       |   +-- SkipButton       (Button + TMP, inactive)
+///       +-- Scripts are attached and cross-referenced automatically.
 /// </summary>
 public static class ChestUIBuilder
 {
@@ -129,7 +129,7 @@ public static class ChestUIBuilder
         if (prefab != null)
         {
             Debug.Log($"[ChestUIBuilder] RewardSlotPrefab created at {prefabPath}. " +
-                      "Assign it to ChestOpeningPanel → Reward Slot Prefab.");
+                      "Assign it to ChestOpeningPanel -> Reward Slot Prefab.");
             Selection.activeObject = prefab;
         }
         else
@@ -141,7 +141,7 @@ public static class ChestUIBuilder
     [MenuItem("Tools/Placement System/Build Chest UI")]
     public static void BuildChestUI()
     {
-        // ── Find Canvas ──────────────────────────────────────────────────────
+        // -- Find Canvas ------------------------------------------------------
         Canvas canvas = Object.FindAnyObjectByType<Canvas>();
         if (canvas == null)
         {
@@ -159,7 +159,7 @@ public static class ChestUIBuilder
             return;
         }
 
-        // ── Notification Button ───────────────────────────────────────────────
+        // -- Notification Button -----------------------------------------------
         GameObject notifGO = CreateButton(canvasT, "ChestNotificationButton", "[CHEST]");
         RectTransform notifRect = notifGO.GetComponent<RectTransform>();
         notifRect.anchorMin = new Vector2(0.5f, 0f);
@@ -184,7 +184,7 @@ public static class ChestUIBuilder
         // Attach ChestNotificationButton script
         ChestNotificationButton notifScript = notifGO.AddComponent<ChestNotificationButton>();
 
-        // ── Chest Opening Panel ───────────────────────────────────────────────
+        // -- Chest Opening Panel -----------------------------------------------
         GameObject panelGO = new GameObject("ChestOpeningPanel");
         panelGO.transform.SetParent(canvasT, false);
         RectTransform panelRect = panelGO.AddComponent<RectTransform>();
@@ -265,7 +265,7 @@ public static class ChestUIBuilder
         StretchFull(skipRect);
         Button skipBtn = skipBtnGO.AddComponent<Button>();
         Image skipImg = skipBtnGO.AddComponent<Image>();
-        skipImg.color = new Color(0f, 0f, 0f, 0f); // fully transparent — tap anywhere
+        skipImg.color = new Color(0f, 0f, 0f, 0f); // fully transparent -- tap anywhere
         skipBtnGO.SetActive(false);
 
         // Attach ChestOpeningPanel script and wire references
@@ -288,7 +288,7 @@ public static class ChestUIBuilder
         // Deactivate panel by default
         panelGO.SetActive(false);
 
-        // ── ChestUIController on Canvas ───────────────────────────────────────
+        // -- ChestUIController on Canvas ---------------------------------------
         ChestUIController controller = canvas.GetComponent<ChestUIController>();
         if (controller == null)
             controller = canvas.gameObject.AddComponent<ChestUIController>();
@@ -307,7 +307,7 @@ public static class ChestUIBuilder
         Selection.activeGameObject = panelGO;
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // -- Helpers ---------------------------------------------------------------
 
     private static void StretchFull(RectTransform rt)
     {

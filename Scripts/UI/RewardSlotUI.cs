@@ -8,7 +8,7 @@ using System.Collections;
 ///
 /// Responsibilities:
 ///   - Display item icon, name, and rarity visuals
-///   - Play a reveal animation (scale from 0 → 1)
+///   - Play a reveal animation (scale from 0 -> 1)
 ///   - Provide rarity border/glow hooks for future FX
 ///
 /// This component MUST NOT:
@@ -20,7 +20,7 @@ using System.Collections;
 /// </summary>
 public class RewardSlotUI : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
 
     [Header("Display References")]
     [SerializeField] private Image            itemIcon;
@@ -29,28 +29,28 @@ public class RewardSlotUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI  quantityText;
 
     [Header("Rarity Visuals (FX hooks)")]
-    [Tooltip("Border image — tinted by rarity colour.")]
+    [Tooltip("Border image -- tinted by rarity colour.")]
     [SerializeField] private Image rarityBorder;
-    [Tooltip("Glow image — placeholder for future particle/shader FX.")]
+    [Tooltip("Glow image -- placeholder for future particle/shader FX.")]
     [SerializeField] private Image rarityGlow;
 
     [Header("Reveal Animation")]
     [Tooltip("Duration of the scale-in reveal animation in seconds.")]
     [SerializeField] private float revealDuration = 0.35f;
 
-    // ── Rarity colour palette ─────────────────────────────────────────────────
+    // -- Rarity colour palette -------------------------------------------------
 
     private static readonly Color ColourCommon    = new Color(0.75f, 0.75f, 0.75f);
     private static readonly Color ColourUncommon  = new Color(0.30f, 0.85f, 0.30f);
     private static readonly Color ColourRare      = new Color(0.20f, 0.50f, 1.00f);
     private static readonly Color ColourSeasonal  = new Color(1.00f, 0.65f, 0.10f);
 
-    // ── Runtime state ─────────────────────────────────────────────────────────
+    // -- Runtime state ---------------------------------------------------------
 
     private RewardResult currentReward;
     private Coroutine    revealCoroutine;
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // -- Public API ------------------------------------------------------------
 
     /// <summary>
     /// Populates the slot with reward data. Does not play the reveal animation.
@@ -141,7 +141,7 @@ public class RewardSlotUI : MonoBehaviour
         }
     }
 
-    // ── Private helpers ───────────────────────────────────────────────────────
+    // -- Private helpers -------------------------------------------------------
 
     private void SetEmpty()
     {

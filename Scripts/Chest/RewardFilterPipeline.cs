@@ -8,7 +8,7 @@ using UnityEngine;
 /// New filter steps (pity, recency decay, duplicate protection) can be added
 /// here without modifying any other system.
 ///
-/// This class is a pure utility — it holds no state and is not a MonoBehaviour.
+/// This class is a pure utility -- it holds no state and is not a MonoBehaviour.
 /// </summary>
 public static class RewardFilterPipeline
 {
@@ -16,9 +16,9 @@ public static class RewardFilterPipeline
     /// Runs all applicable filter steps and returns the eligible item list.
     ///
     /// Filter order:
-    ///   1. Seasonal filter  — remove items that don't match the active season
-    ///   2. Recency decay    — (stub) deprioritise recently received items
-    ///   3. Duplicate guard  — (stub) deprioritise already-owned items
+    ///   1. Seasonal filter  -- remove items that don't match the active season
+    ///   2. Recency decay    -- (stub) deprioritise recently received items
+    ///   3. Duplicate guard  -- (stub) deprioritise already-owned items
     /// </summary>
     /// <param name="candidates">All unlocked items from <see cref="ItemRewardPool"/>.</param>
     /// <param name="context">Draw context carrying chest config and player state.</param>
@@ -32,14 +32,14 @@ public static class RewardFilterPipeline
 
         List<PlaceableItem> result = new List<PlaceableItem>(candidates);
 
-        // ── Step 1: Seasonal filter ───────────────────────────────────────────
+        // -- Step 1: Seasonal filter -------------------------------------------
         result = ApplySeasonalFilter(result, context);
 
-        // ── Step 2: Recency decay (stub — no-op until implemented) ────────────
+        // -- Step 2: Recency decay (stub -- no-op until implemented) ------------
         if (context.Chest.UseRecencyDecay)
             result = ApplyRecencyDecay(result, context);
 
-        // ── Step 3: Duplicate protection (stub — no-op until implemented) ─────
+        // -- Step 3: Duplicate protection (stub -- no-op until implemented) -----
         if (context.Chest.UseDuplicateProtection)
             result = ApplyDuplicateProtection(result, context);
 
@@ -55,13 +55,13 @@ public static class RewardFilterPipeline
         return result;
     }
 
-    // ── Private filter steps ──────────────────────────────────────────────────
+    // -- Private filter steps --------------------------------------------------
 
     private static List<PlaceableItem> ApplySeasonalFilter(
         List<PlaceableItem>   items,
         RewardSelectionContext context)
     {
-        // No active season and no chest-level season restriction → pass all through
+        // No active season and no chest-level season restriction -> pass all through
         if (context.ActiveSeason == null && (context.Chest.AllowedSeasonTags == null
             || context.Chest.AllowedSeasonTags.Length == 0))
             return items;
@@ -80,7 +80,7 @@ public static class RewardFilterPipeline
                 continue;
             }
 
-            // Chest has explicit allowed seasons → item must match one of them
+            // Chest has explicit allowed seasons -> item must match one of them
             if (context.Chest.AllowedSeasonTags != null && context.Chest.AllowedSeasonTags.Length > 0)
             {
                 bool matchesChestSeason = false;
@@ -115,7 +115,7 @@ public static class RewardFilterPipeline
     {
         // TODO: Implement recency decay.
         // Suggested approach: build a weighted list where items in
-        // context.RecentItemIds receive a reduced weight multiplier (e.g. 0.25×).
+        // context.RecentItemIds receive a reduced weight multiplier (e.g. 0.25?).
         return items;
     }
 

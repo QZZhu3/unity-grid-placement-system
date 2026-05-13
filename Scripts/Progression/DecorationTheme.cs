@@ -8,10 +8,10 @@ using System.Collections.Generic;
 /// A theme is unlocked when its <see cref="unlockRequirement"/> is satisfied.
 /// Unlocking a theme automatically unlocks all of its member categories via
 /// <see cref="UnlockManager"/>. Unlock logic is entirely delegated to the
-/// <see cref="UnlockRequirement"/> ScriptableObject — no level thresholds are
+/// <see cref="UnlockRequirement"/> ScriptableObject -- no level thresholds are
 /// hardcoded here.
 ///
-/// Create via: Assets → Placement System → Progression → Decoration Theme
+/// Create via: Assets -> Placement System -> Progression -> Decoration Theme
 /// </summary>
 [CreateAssetMenu(
     fileName = "Theme_",
@@ -45,7 +45,7 @@ public class DecorationTheme : ScriptableObject
              "UnlockRequirement subclass. Leave null to make the theme available from the start.")]
     [SerializeField] private UnlockRequirement unlockRequirement;
 
-    // ── Public accessors ──────────────────────────────────────────────────────
+    // -- Public accessors ------------------------------------------------------
 
     public string                      Id                 => id;
     public string                      DisplayName        => displayName;

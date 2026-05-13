@@ -8,15 +8,15 @@ using System.Collections.Generic;
 /// Full-screen chest opening panel with an internal state machine.
 ///
 /// States:
-///   Idle            — panel is hidden, no chest loaded
-///   OpeningAnimation — panel fades in, chest name displayed
-///   RewardReveal    — reward slots animate in one by one
-///   ResultsShown    — all rewards visible, close button active
-///   Closing         — panel fades out
+///   Idle            -- panel is hidden, no chest loaded
+///   OpeningAnimation -- panel fades in, chest name displayed
+///   RewardReveal    -- reward slots animate in one by one
+///   ResultsShown    -- all rewards visible, close button active
+///   Closing         -- panel fades out
 ///
 /// Skip behaviour:
-///   First tap during RewardReveal  → halves remaining reveal delay
-///   Second tap during RewardReveal → skips all remaining reveals instantly
+///   First tap during RewardReveal  -> halves remaining reveal delay
+///   Second tap during RewardReveal -> skips all remaining reveals instantly
 ///
 /// This panel is opened by ChestUIController, not by ChestNotificationButton directly.
 /// Reward logic (drawing items) is performed by RewardManager before Open() is called.
@@ -24,13 +24,13 @@ using System.Collections.Generic;
 /// </summary>
 public class ChestOpeningPanel : MonoBehaviour
 {
-    // ── State machine ─────────────────────────────────────────────────────────
+    // -- State machine ---------------------------------------------------------
 
     public enum PanelState { Idle, OpeningAnimation, RewardReveal, ResultsShown, Closing }
 
     public PanelState CurrentState { get; private set; } = PanelState.Idle;
 
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
 
     [Header("Panel References")]
     [SerializeField] private CanvasGroup      canvasGroup;
@@ -52,12 +52,12 @@ public class ChestOpeningPanel : MonoBehaviour
     [Tooltip("Delay multiplier applied on first skip tap.")]
     [SerializeField] private float skipSpeedMultiplier = 0.25f;
 
-    // ── Events ────────────────────────────────────────────────────────────────
+    // -- Events ----------------------------------------------------------------
 
     /// <summary>Fired when the panel has fully closed and is idle again.</summary>
     public event System.Action OnPanelClosed;
 
-    // ── Runtime state ─────────────────────────────────────────────────────────
+    // -- Runtime state ---------------------------------------------------------
 
     private ChestOpenResult     currentResult;
     private List<RewardSlotUI>  spawnedSlots = new List<RewardSlotUI>();
@@ -65,7 +65,7 @@ public class ChestOpeningPanel : MonoBehaviour
     private int                 skipTapCount = 0;
     private float               currentRevealDelay;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Awake()
     {
@@ -80,11 +80,11 @@ public class ChestOpeningPanel : MonoBehaviour
         SetState(PanelState.Idle);
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // -- Public API ------------------------------------------------------------
 
     /// <summary>
     /// Opens the panel for a chest that has already been drawn by RewardManager.
-    /// Pass the ChestOpenResult directly — no reward logic runs here.
+    /// Pass the ChestOpenResult directly -- no reward logic runs here.
     /// </summary>
     public void Open(ChestOpenResult result)
     {
@@ -139,7 +139,7 @@ public class ChestOpeningPanel : MonoBehaviour
         }
     }
 
-    // ── State transitions ─────────────────────────────────────────────────────
+    // -- State transitions -----------------------------------------------------
 
     private void SetState(PanelState newState)
     {
@@ -173,7 +173,7 @@ public class ChestOpeningPanel : MonoBehaviour
         }
     }
 
-    // ── Button handlers ───────────────────────────────────────────────────────
+    // -- Button handlers -------------------------------------------------------
 
     private void OnOpenButtonClicked()
     {
@@ -189,7 +189,7 @@ public class ChestOpeningPanel : MonoBehaviour
         activeCoroutine = StartCoroutine(FadeOut());
     }
 
-    // ── Coroutines ────────────────────────────────────────────────────────────
+    // -- Coroutines ------------------------------------------------------------
 
     private IEnumerator FadeIn()
     {
@@ -206,7 +206,7 @@ public class ChestOpeningPanel : MonoBehaviour
 
         if (canvasGroup != null) canvasGroup.alpha = 1f;
         activeCoroutine = null;
-        // Panel is now visible — waiting for player to click Open
+        // Panel is now visible -- waiting for player to click Open
     }
 
     private IEnumerator RevealRewards()
@@ -255,7 +255,7 @@ public class ChestOpeningPanel : MonoBehaviour
         OnPanelClosed?.Invoke();
     }
 
-    // ── Slot management ───────────────────────────────────────────────────────
+    // -- Slot management -------------------------------------------------------
 
     private RewardSlotUI SpawnSlot(RewardResult reward)
     {

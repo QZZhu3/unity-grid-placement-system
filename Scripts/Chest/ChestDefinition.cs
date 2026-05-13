@@ -4,10 +4,10 @@ using UnityEngine;
 /// <summary>
 /// Data-driven definition of a chest type.
 ///
-/// Each chest is fully described by this ScriptableObject — no code changes are
+/// Each chest is fully described by this ScriptableObject -- no code changes are
 /// needed to create new chest types (seasonal, event, premium, etc.).
 ///
-/// Create via: Assets → Placement System → Chest → Chest Definition
+/// Create via: Assets -> Placement System -> Chest -> Chest Definition
 /// </summary>
 [CreateAssetMenu(
     fileName = "Chest_",
@@ -15,7 +15,7 @@ using UnityEngine;
     order    = 20)]
 public class ChestDefinition : ScriptableObject
 {
-    // ── Identity ──────────────────────────────────────────────────────────────
+    // -- Identity --------------------------------------------------------------
     [Header("Identity")]
     [Tooltip("Stable machine-readable ID. Never change after content ships. " +
              "Example: \"basic_chest\", \"sakura_chest\".")]
@@ -30,12 +30,12 @@ public class ChestDefinition : ScriptableObject
     [Tooltip("Icon displayed in the chest queue and opening UI.")]
     [SerializeField] private Sprite icon;
 
-    // ── Rarity weights ────────────────────────────────────────────────────────
+    // -- Rarity weights --------------------------------------------------------
     [Header("Rarity Weights")]
     [Tooltip("Override rarity weights for this chest. Leave empty to use ItemRewardPool defaults.")]
     [SerializeField] private List<ChestRarityWeight> rarityWeights = new List<ChestRarityWeight>();
 
-    // ── Seasonal filtering ────────────────────────────────────────────────────
+    // -- Seasonal filtering ----------------------------------------------------
     [Header("Seasonal Filtering")]
     [Tooltip("If set, only items tagged with one of these seasons are eligible. " +
              "Leave empty to allow all seasons.")]
@@ -44,7 +44,7 @@ public class ChestDefinition : ScriptableObject
     [Tooltip("If true, items with no season tag are also eligible alongside seasonal items.")]
     [SerializeField] private bool allowNonSeasonalItems = true;
 
-    // ── Reward configuration ──────────────────────────────────────────────────
+    // -- Reward configuration --------------------------------------------------
     [Header("Reward Configuration")]
     [Tooltip("How many items are rewarded when this chest is opened.")]
     [SerializeField, Min(1)] private int rewardsPerChest = 1;
@@ -57,12 +57,12 @@ public class ChestDefinition : ScriptableObject
              "Requires duplicate protection to be implemented.")]
     [SerializeField] private bool useDuplicateProtection = false;
 
-    // ── Audio ─────────────────────────────────────────────────────────────────
+    // -- Audio -----------------------------------------------------------------
     [Header("Audio")]
     [Tooltip("Sound played when this chest is opened. Optional.")]
     [SerializeField] private AudioClip openSound;
 
-    // ── Public accessors ──────────────────────────────────────────────────────
+    // -- Public accessors ------------------------------------------------------
     public string       Id                      => id;
     public string       DisplayName             => displayName;
     public string       Description             => description;

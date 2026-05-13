@@ -12,12 +12,12 @@ using System.Collections.Generic;
 /// </summary>
 public class RewardSelectionContext
 {
-    // ── Required ──────────────────────────────────────────────────────────────
+    // -- Required --------------------------------------------------------------
 
     /// <summary>The chest definition driving this draw.</summary>
     public ChestDefinition Chest { get; }
 
-    // ── Optional filters ──────────────────────────────────────────────────────
+    // -- Optional filters ------------------------------------------------------
 
     /// <summary>
     /// Active season tag. When set, only items matching this season (or non-seasonal
@@ -26,7 +26,7 @@ public class RewardSelectionContext
     /// </summary>
     public SeasonTag ActiveSeason { get; }
 
-    // ── Future extension points ───────────────────────────────────────────────
+    // -- Future extension points -----------------------------------------------
     // These are wired up now so the pipeline can check them without a rewrite later.
 
     /// <summary>
@@ -41,7 +41,7 @@ public class RewardSelectionContext
     /// </summary>
     public IReadOnlyList<string> OwnedItemIds { get; }
 
-    // ── Constructor ───────────────────────────────────────────────────────────
+    // -- Constructor -----------------------------------------------------------
 
     public RewardSelectionContext(
         ChestDefinition        chest,

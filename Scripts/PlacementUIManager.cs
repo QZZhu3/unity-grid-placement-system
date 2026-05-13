@@ -1,5 +1,5 @@
-// ──────────────────────────────────────────────────────────────────────────────
-// PlacementUIManager.cs  —  DEPRECATED
+// ------------------------------------------------------------------------------
+// PlacementUIManager.cs  --  DEPRECATED
 //
 // This was the UI driver for the old PlacementController architecture.
 // It has been replaced by InventoryUI + InventoryPlacementBridge.
@@ -8,7 +8,7 @@
 //   1. Remove PlacementUIManager from any GameObjects in the scene.
 //   2. Remove PlacementController from any GameObjects in the scene.
 //   3. Delete both files.
-// ──────────────────────────────────────────────────────────────────────────────
+// ------------------------------------------------------------------------------
 
 using UnityEngine;
 

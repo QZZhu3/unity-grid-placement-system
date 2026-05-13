@@ -5,7 +5,7 @@ using System.Collections.Generic;
 /// Manages player level, experience points, and progression milestones.
 ///
 /// This class is responsible only for tracking progression state and firing events.
-/// It has no knowledge of unlocks, items, or UI — those systems subscribe to its events.
+/// It has no knowledge of unlocks, items, or UI -- those systems subscribe to its events.
 ///
 /// XP and level-up curve:
 ///   XP required for each level is defined by <see cref="xpCurve"/>. If the curve has
@@ -17,13 +17,13 @@ using System.Collections.Generic;
 ///   condition is met, and is then marked as achieved.
 ///
 /// Events:
-///   <see cref="OnXpGained"/>         — fired on every XP gain
-///   <see cref="OnLevelUp"/>          — fired when the player levels up
-///   <see cref="OnMilestoneAchieved"/> — fired the first time a milestone is reached
+///   <see cref="OnXpGained"/>         -- fired on every XP gain
+///   <see cref="OnLevelUp"/>          -- fired when the player levels up
+///   <see cref="OnMilestoneAchieved"/> -- fired the first time a milestone is reached
 /// </summary>
 public class PlayerProgressionManager : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
 
     [Header("Starting State")]
     [SerializeField] private int   startingLevel = 1;
@@ -35,15 +35,15 @@ public class PlayerProgressionManager : MonoBehaviour
              "If the player exceeds the last entry, that value repeats.")]
     [SerializeField] private List<float> xpCurve = new List<float>
     {
-        100f,   // level 1 → 2
-        200f,   // level 2 → 3
-        350f,   // level 3 → 4
-        550f,   // level 4 → 5
-        800f,   // level 5 → 6
-        1100f,  // level 6 → 7
-        1500f,  // level 7 → 8
-        2000f,  // level 8 → 9
-        2600f,  // level 9 → 10
+        100f,   // level 1 -> 2
+        200f,   // level 2 -> 3
+        350f,   // level 3 -> 4
+        550f,   // level 4 -> 5
+        800f,   // level 5 -> 6
+        1100f,  // level 6 -> 7
+        1500f,  // level 7 -> 8
+        2000f,  // level 8 -> 9
+        2600f,  // level 9 -> 10
         3300f   // level 10+ (repeats)
     };
 
@@ -53,17 +53,17 @@ public class PlayerProgressionManager : MonoBehaviour
 
     [Header("Milestones")]
     [Tooltip("All ProgressionMilestone assets to evaluate. " +
-             "Order does not matter — all are checked after every XP gain.")]
+             "Order does not matter -- all are checked after every XP gain.")]
     [SerializeField] private List<ProgressionMilestone> milestones
         = new List<ProgressionMilestone>();
 
-    // ── Runtime state ─────────────────────────────────────────────────────────
+    // -- Runtime state ---------------------------------------------------------
 
     private int   currentLevel;
     private float currentXp;
     private HashSet<string> achievedMilestoneIds = new HashSet<string>();
 
-    // ── Events ────────────────────────────────────────────────────────────────
+    // -- Events ----------------------------------------------------------------
 
     /// <summary>Fired whenever XP is gained. Args: (newTotalXp).</summary>
     public event System.Action<float> OnXpGained;
@@ -74,7 +74,7 @@ public class PlayerProgressionManager : MonoBehaviour
     /// <summary>Fired the first time a milestone is achieved. Args: (milestone).</summary>
     public event System.Action<ProgressionMilestone> OnMilestoneAchieved;
 
-    // ── Public accessors ──────────────────────────────────────────────────────
+    // -- Public accessors ------------------------------------------------------
 
     public int   CurrentLevel => currentLevel;
     public float CurrentXp   => currentXp;
@@ -82,11 +82,11 @@ public class PlayerProgressionManager : MonoBehaviour
     /// <summary>XP required to reach the next level from the current level.</summary>
     public float XpToNextLevel => GetXpRequiredForLevel(currentLevel);
 
-    /// <summary>0–1 progress toward the next level.</summary>
+    /// <summary>0-1 progress toward the next level.</summary>
     public float LevelProgress =>
         XpToNextLevel > 0 ? Mathf.Clamp01(currentXp / XpToNextLevel) : 1f;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Awake()
     {
@@ -94,7 +94,7 @@ public class PlayerProgressionManager : MonoBehaviour
         currentXp    = Mathf.Max(0f, startingXp);
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // -- Public API ------------------------------------------------------------
 
     /// <summary>
     /// Awards XP to the player. Handles level-ups and milestone checks automatically.
@@ -145,7 +145,7 @@ public class PlayerProgressionManager : MonoBehaviour
         OnMilestoneAchieved?.Invoke(milestone);
     }
 
-    // ── Save / Load ───────────────────────────────────────────────────────────
+    // -- Save / Load -----------------------------------------------------------
 
     /// <summary>Restores progression state from saved data.</summary>
     public void LoadState(int level, float xp, IEnumerable<string> achievedMilestones)
@@ -163,13 +163,13 @@ public class PlayerProgressionManager : MonoBehaviour
         return (currentLevel, currentXp, ids);
     }
 
-    // ── Private helpers ───────────────────────────────────────────────────────
+    // -- Private helpers -------------------------------------------------------
 
     private float GetXpRequiredForLevel(int level)
     {
         if (xpCurve == null || xpCurve.Count == 0) return 100f;
 
-        // level 1 → index 0, level 2 → index 1, etc.
+        // level 1 -> index 0, level 2 -> index 1, etc.
         int index = Mathf.Clamp(level - 1, 0, xpCurve.Count - 1);
         return Mathf.Max(1f, xpCurve[index]);
     }
@@ -187,7 +187,7 @@ public class PlayerProgressionManager : MonoBehaviour
         }
     }
 
-    // ── Debug ─────────────────────────────────────────────────────────────────
+    // -- Debug -----------------------------------------------------------------
 
     [ContextMenu("Debug: Add 100 XP")]
     private void DebugAdd100Xp() => AddXp(100f);

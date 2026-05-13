@@ -11,7 +11,7 @@ using UnityEngine.EventSystems;
 ///
 /// Mobile readiness:
 ///   - Implements IPointerClickHandler (works for both mouse and touch).
-///   - Minimum recommended button size: 80×80 px (set via RectTransform in the prefab).
+///   - Minimum recommended button size: 80?80 px (set via RectTransform in the prefab).
 ///   - Visual feedback on hover (desktop) and on selection (all platforms).
 /// </summary>
 [RequireComponent(typeof(RectTransform))]
@@ -20,7 +20,7 @@ public class InventorySlotUI : MonoBehaviour,
     IPointerEnterHandler,
     IPointerExitHandler
 {
-    // ── Inspector references ──────────────────────────────────────────────────
+    // -- Inspector references --------------------------------------------------
 
     [Header("Icon & Text")]
     [SerializeField] private Image           iconImage;
@@ -31,20 +31,20 @@ public class InventorySlotUI : MonoBehaviour,
     [SerializeField] private Image backgroundImage;
     [SerializeField] private Image selectionHighlight;  // optional overlay image
 
-    // ── Colours ───────────────────────────────────────────────────────────────
+    // -- Colours ---------------------------------------------------------------
 
     private static readonly Color NormalColor   = new Color(0.20f, 0.20f, 0.20f, 0.90f);
     private static readonly Color HoverColor    = new Color(0.30f, 0.30f, 0.30f, 0.90f);
     private static readonly Color SelectedColor = new Color(0.15f, 0.50f, 0.15f, 0.90f);
     private static readonly Color EmptyColor    = new Color(0.15f, 0.15f, 0.15f, 0.60f);
 
-    // ── Runtime state ─────────────────────────────────────────────────────────
+    // -- Runtime state ---------------------------------------------------------
 
     private InventorySlot            slot;
     private System.Action<InventorySlot> onClickCallback;
     private bool                     isSelected;
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // -- Public API ------------------------------------------------------------
 
     /// <summary>The inventory data slot this UI element represents.</summary>
     public InventorySlot Slot => slot;
@@ -71,7 +71,7 @@ public class InventorySlotUI : MonoBehaviour,
 
         bool isEmpty = slot.IsEmpty;
 
-        // ── Icon ──────────────────────────────────────────────────────────────
+        // -- Icon --------------------------------------------------------------
         if (iconImage != null)
         {
             iconImage.sprite  = slot.Item?.Icon;
@@ -79,14 +79,14 @@ public class InventorySlotUI : MonoBehaviour,
             iconImage.color   = isEmpty ? new Color(1f, 1f, 1f, 0.25f) : Color.white;
         }
 
-        // ── Name ──────────────────────────────────────────────────────────────
+        // -- Name --------------------------------------------------------------
         if (itemNameText != null)
         {
             itemNameText.text  = slot.Item?.DisplayName ?? string.Empty;
             itemNameText.color = isEmpty ? new Color(1f, 1f, 1f, 0.40f) : Color.white;
         }
 
-        // ── Quantity ──────────────────────────────────────────────────────────
+        // -- Quantity ----------------------------------------------------------
         if (quantityText != null)
         {
             quantityText.text  = isEmpty ? "0" : slot.Quantity.ToString();
@@ -95,7 +95,7 @@ public class InventorySlotUI : MonoBehaviour,
                 : new Color(1f, 0.90f, 0.30f, 1f);   // yellow when available
         }
 
-        // ── Background ────────────────────────────────────────────────────────
+        // -- Background --------------------------------------------------------
         if (backgroundImage != null)
         {
             backgroundImage.color = isEmpty
@@ -103,7 +103,7 @@ public class InventorySlotUI : MonoBehaviour,
                 : (isSelected ? SelectedColor : NormalColor);
         }
 
-        // ── Selection highlight ───────────────────────────────────────────────
+        // -- Selection highlight -----------------------------------------------
         if (selectionHighlight != null)
             selectionHighlight.enabled = isSelected && !isEmpty;
     }
@@ -122,7 +122,7 @@ public class InventorySlotUI : MonoBehaviour,
             selectionHighlight.enabled = selected;
     }
 
-    // ── Pointer events ────────────────────────────────────────────────────────
+    // -- Pointer events --------------------------------------------------------
 
     public void OnPointerClick(PointerEventData eventData)
     {

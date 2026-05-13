@@ -10,7 +10,7 @@ using TMPro;
 /// Shows the chest icon, animates the opening, then reveals each reward card
 /// one by one before dismissing.
 ///
-/// This script is intentionally minimal — it drives a simple reveal sequence
+/// This script is intentionally minimal -- it drives a simple reveal sequence
 /// without requiring a full animation state machine. Replace the
 /// <see cref="RevealDelay"/> and <see cref="DismissDelay"/> values with
 /// Animator triggers when you add proper animations.
@@ -26,7 +26,7 @@ using TMPro;
 /// </summary>
 public class ChestOpeningUI : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
     [Header("Dependencies")]
     [SerializeField] private RewardManager rewardManager;
 
@@ -48,10 +48,10 @@ public class ChestOpeningUI : MonoBehaviour
     [Tooltip("Seconds after all cards appear before auto-dismiss is available.")]
     [SerializeField] private float dismissDelay = 1.0f;
 
-    // ── Runtime ───────────────────────────────────────────────────────────────
+    // -- Runtime ---------------------------------------------------------------
     private bool isDismissable;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
     private void Awake()
     {
         if (rewardManager == null)
@@ -82,7 +82,7 @@ public class ChestOpeningUI : MonoBehaviour
             rewardManager.OnChestOpened -= HandleChestOpened;
     }
 
-    // ── Event handlers ────────────────────────────────────────────────────────
+    // -- Event handlers --------------------------------------------------------
 
     private void HandleChestOpened(ChestOpenResult result)
     {
@@ -99,7 +99,7 @@ public class ChestOpeningUI : MonoBehaviour
             pendingCountLabel.text = pendingCount > 0 ? $"x{pendingCount}" : "";
     }
 
-    // ── Button callbacks ──────────────────────────────────────────────────────
+    // -- Button callbacks ------------------------------------------------------
 
     private void OnOpenButtonClicked()
     {
@@ -113,7 +113,7 @@ public class ChestOpeningUI : MonoBehaviour
         SetPanelVisible(false);
     }
 
-    // ── Sequence ──────────────────────────────────────────────────────────────
+    // -- Sequence --------------------------------------------------------------
 
     private IEnumerator PlayOpenSequence(ChestOpenResult result)
     {
@@ -152,7 +152,7 @@ public class ChestOpeningUI : MonoBehaviour
             dismissButton.interactable = true;
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // -- Helpers ---------------------------------------------------------------
 
     private void SpawnRewardCard(RewardResult reward)
     {

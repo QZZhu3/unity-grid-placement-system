@@ -6,8 +6,8 @@ using UnityEngine;
 /// any existing code (open/closed principle).
 ///
 /// Concrete implementations:
-///   <see cref="LevelUnlockRequirement"/>     — unlocks at a player level threshold
-///   <see cref="MilestoneUnlockRequirement"/> — unlocks when a named milestone is achieved
+///   <see cref="LevelUnlockRequirement"/>     -- unlocks at a player level threshold
+///   <see cref="MilestoneUnlockRequirement"/> -- unlocks when a named milestone is achieved
 /// </summary>
 public abstract class UnlockRequirement : ScriptableObject
 {

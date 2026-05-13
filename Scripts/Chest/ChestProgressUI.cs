@@ -14,7 +14,7 @@ using TMPro;
 /// </summary>
 public class ChestProgressUI : MonoBehaviour
 {
-    // ── Inspector ─────────────────────────────────────────────────────────────
+    // -- Inspector -------------------------------------------------------------
     [Header("Dependencies (auto-discovered if left empty)")]
     [SerializeField] private ChestProgressManager chestProgress;
     [SerializeField] private ChestQueueManager    chestQueue;
@@ -24,7 +24,7 @@ public class ChestProgressUI : MonoBehaviour
     [SerializeField] private TMP_Text  progressLabel;
     [SerializeField] private GameObject chestReadyIndicator;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
     private void Awake()
     {
         if (chestProgress == null)
@@ -55,7 +55,7 @@ public class ChestProgressUI : MonoBehaviour
             chestQueue.OnQueueCountChanged -= HandleQueueChanged;
     }
 
-    // ── Event handlers ────────────────────────────────────────────────────────
+    // -- Event handlers --------------------------------------------------------
 
     private void HandleProgressChanged(int current, int total)
     {

@@ -12,7 +12,7 @@ using UnityEngine;
 [RequireComponent(typeof(PlacementPreview))]
 public class DraggableItem : MonoBehaviour
 {
-    // ── Configuration ─────────────────────────────────────────────────────────
+    // -- Configuration ---------------------------------------------------------
 
     private GridManager       gridManager;
     private PlacementValidator validator;
@@ -28,13 +28,13 @@ public class DraggableItem : MonoBehaviour
     /// </summary>
     private Vector2Int? originalGridPosition;
 
-    // ── Runtime state ─────────────────────────────────────────────────────────
+    // -- Runtime state ---------------------------------------------------------
 
     private int        currentRotation  = 0;       // 0, 90, 180, 270
     private Vector2Int currentGridPos   = Vector2Int.zero;
     private bool       isValid          = false;
 
-    // ── Events ────────────────────────────────────────────────────────────────
+    // -- Events ----------------------------------------------------------------
 
     /// <summary>Fired when the player confirms placement (left-click).</summary>
     public event System.Action<DraggableItem, Vector2Int, int> OnConfirm;
@@ -42,7 +42,7 @@ public class DraggableItem : MonoBehaviour
     /// <summary>Fired when the player cancels placement (right-click / Escape).</summary>
     public event System.Action<DraggableItem> OnCancel;
 
-    // ── Initialisation ────────────────────────────────────────────────────────
+    // -- Initialisation --------------------------------------------------------
 
     /// <summary>
     /// Initialises the draggable state. Call this immediately after adding the component.
@@ -63,7 +63,7 @@ public class DraggableItem : MonoBehaviour
         preview = GetComponent<PlacementPreview>();
     }
 
-    // ── MonoBehaviour ─────────────────────────────────────────────────────────
+    // -- MonoBehaviour ---------------------------------------------------------
 
     private void Update()
     {
@@ -72,7 +72,7 @@ public class DraggableItem : MonoBehaviour
         HandleConfirmCancel();
     }
 
-    // ── Private logic ─────────────────────────────────────────────────────────
+    // -- Private logic ---------------------------------------------------------
 
     private void HandleRotation()
     {
@@ -111,11 +111,11 @@ public class DraggableItem : MonoBehaviour
         }
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // -- Helpers ---------------------------------------------------------------
 
     /// <summary>
     /// Returns the item's size footprint adjusted for the current rotation.
-    /// Width and depth are swapped for 90° and 270° rotations.
+    /// Width and depth are swapped for 90deg and 270deg rotations.
     /// </summary>
     public Vector2Int GetFootprint()
     {
@@ -125,7 +125,7 @@ public class DraggableItem : MonoBehaviour
             : size;
     }
 
-    // ── Public accessors ──────────────────────────────────────────────────────
+    // -- Public accessors ------------------------------------------------------
 
     public PlaceableItem  ItemData         => itemData;
     public int            CurrentRotation  => currentRotation;
