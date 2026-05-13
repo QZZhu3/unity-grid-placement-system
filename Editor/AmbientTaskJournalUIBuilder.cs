@@ -7,27 +7,27 @@ using TMPro;
 /// <summary>
 /// Editor utility that builds the entire Ambient Task Journal UI hierarchy.
 ///
-/// Usage: Unity menu → Tools → Placement System → Build Ambient Task Journal UI
+/// Usage: Unity menu -> Tools -> Placement System -> Build Ambient Task Journal UI
 ///
 /// What it creates:
 ///   Canvas
-///   ├── JournalDarkenOverlay     (full-screen darkening Image, alpha 0)
-///   └── AmbientJournalRoot       (anchor: left, off-screen)
-///       ├── PeekZone             (invisible trigger area at screen edge)
-///       └── JournalPanel         (TaskJournalPanel, CanvasGroup)
-///           ├── PanelBackground  (styled card)
-///           ├── PeekView         (visible in Peek mode)
-///           │   ├── TaskIcon
-///           │   ├── TaskTitlePeek
-///           │   └── TinyProgress (Image, radial fill)
-///           └── PinnedView       (visible in Pinned mode)
-///               ├── TaskTitlePinned
-///               ├── CategoryLabel
-///               ├── RewardPreview
-///               ├── HoldButton   (HoldCompleteInteraction)
-///               │   ├── HoldLabel
-///               │   └── HoldFill (Image, radial fill)
-///               └── SwapButton
+///   +-- JournalDarkenOverlay     (full-screen darkening Image, alpha 0)
+///   +-- AmbientJournalRoot       (anchor: left, off-screen)
+///       +-- PeekZone             (invisible trigger area at screen edge)
+///       +-- JournalPanel         (TaskJournalPanel, CanvasGroup)
+///           +-- PanelBackground  (styled card)
+///           +-- PeekView         (visible in Peek mode)
+///           |   +-- TaskIcon
+///           |   +-- TaskTitlePeek
+///           |   +-- TinyProgress (Image, radial fill)
+///           +-- PinnedView       (visible in Pinned mode)
+///               +-- TaskTitlePinned
+///               +-- CategoryLabel
+///               +-- RewardPreview
+///               +-- HoldButton   (HoldCompleteInteraction)
+///               |   +-- HoldLabel
+///               |   +-- HoldFill (Image, radial fill)
+///               +-- SwapButton
 ///
 /// All components are attached and cross-referenced automatically.
 /// </summary>
@@ -36,7 +36,7 @@ public static class AmbientTaskJournalUIBuilder
     [MenuItem("Tools/Placement System/Build Ambient Task Journal UI")]
     public static void BuildJournalUI()
     {
-        // ── Find Canvas ───────────────────────────────────────────────────────
+        // -- Find Canvas -------------------------------------------------------
         Canvas canvas = Object.FindAnyObjectByType<Canvas>();
         if (canvas == null)
         {
@@ -46,7 +46,7 @@ public static class AmbientTaskJournalUIBuilder
         }
         Transform canvasT = canvas.transform;
 
-        // ── Guard: don't build twice ──────────────────────────────────────────
+        // -- Guard: don't build twice ------------------------------------------
         if (canvasT.Find("AmbientJournalRoot") != null)
         {
             bool replace = EditorUtility.DisplayDialog("Journal UI Builder",
@@ -59,7 +59,7 @@ public static class AmbientTaskJournalUIBuilder
             Object.DestroyImmediate(canvasT.Find("JournalDarkenOverlay").gameObject);
         }
 
-        // ── Darken overlay (behind journal, full screen) ──────────────────────
+        // -- Darken overlay (behind journal, full screen) ----------------------
         GameObject overlayGO = new GameObject("JournalDarkenOverlay");
         overlayGO.transform.SetParent(canvasT, false);
         RectTransform overlayRect = overlayGO.AddComponent<RectTransform>();
@@ -68,7 +68,7 @@ public static class AmbientTaskJournalUIBuilder
         overlayImg.color = new Color(0f, 0f, 0f, 0f);
         overlayImg.raycastTarget = false;
 
-        // ── Journal root ──────────────────────────────────────────────────────
+        // -- Journal root ------------------------------------------------------
         GameObject rootGO = new GameObject("AmbientJournalRoot");
         rootGO.transform.SetParent(canvasT, false);
         RectTransform rootRect = rootGO.AddComponent<RectTransform>();
@@ -79,7 +79,7 @@ public static class AmbientTaskJournalUIBuilder
         rootRect.anchoredPosition = new Vector2(-300f, 0f); // off-screen left
         rootRect.sizeDelta        = new Vector2(320f, 600f);
 
-        // ── Peek zone (invisible trigger strip at left edge) ──────────────────
+        // -- Peek zone (invisible trigger strip at left edge) ------------------
         GameObject peekZoneGO = new GameObject("PeekZone");
         peekZoneGO.transform.SetParent(canvasT, false);
         RectTransform peekZoneRect = peekZoneGO.AddComponent<RectTransform>();
@@ -92,7 +92,7 @@ public static class AmbientTaskJournalUIBuilder
         peekZoneImg.color = new Color(0f, 0f, 0f, 0f); // invisible but raycasts
         peekZoneGO.transform.SetParent(canvasT, false); // keep at canvas level
 
-        // ── Journal panel ─────────────────────────────────────────────────────
+        // -- Journal panel -----------------------------------------------------
         GameObject panelGO = new GameObject("JournalPanel");
         panelGO.transform.SetParent(rootGO.transform, false);
         RectTransform panelRect = panelGO.AddComponent<RectTransform>();
@@ -102,7 +102,7 @@ public static class AmbientTaskJournalUIBuilder
         panelCG.interactable   = false;
         panelCG.blocksRaycasts = false;
 
-        // ── Panel background ──────────────────────────────────────────────────
+        // -- Panel background --------------------------------------------------
         GameObject bgGO = new GameObject("PanelBackground");
         bgGO.transform.SetParent(panelGO.transform, false);
         RectTransform bgRect = bgGO.AddComponent<RectTransform>();
@@ -110,7 +110,7 @@ public static class AmbientTaskJournalUIBuilder
         Image bgImg = bgGO.AddComponent<Image>();
         bgImg.color = new Color(0.14f, 0.11f, 0.20f, 0.95f);
 
-        // ── Peek view ─────────────────────────────────────────────────────────
+        // -- Peek view ---------------------------------------------------------
         GameObject peekViewGO = new GameObject("PeekView");
         peekViewGO.transform.SetParent(panelGO.transform, false);
         RectTransform peekViewRect = peekViewGO.AddComponent<RectTransform>();
@@ -157,7 +157,7 @@ public static class AmbientTaskJournalUIBuilder
         tinyProgressImg.fillMethod = Image.FillMethod.Radial360;
         tinyProgressImg.fillAmount = 0.6f; // placeholder
 
-        // ── Pinned view ───────────────────────────────────────────────────────
+        // -- Pinned view -------------------------------------------------------
         GameObject pinnedViewGO = new GameObject("PinnedView");
         pinnedViewGO.transform.SetParent(panelGO.transform, false);
         RectTransform pinnedViewRect = pinnedViewGO.AddComponent<RectTransform>();
@@ -250,16 +250,16 @@ public static class AmbientTaskJournalUIBuilder
         swapBtnRect.sizeDelta        = new Vector2(180f, 44f);
         swapBtnGO.GetComponent<Image>().color = new Color(0.20f, 0.16f, 0.30f, 1f);
 
-        // ── Attach TaskJournalPanel ───────────────────────────────────────────
+        // -- Attach TaskJournalPanel -------------------------------------------
         TaskJournalPanel journalPanel = panelGO.AddComponent<TaskJournalPanel>();
 
-        // ── Attach AmbientTaskJournalController to root ───────────────────────
+        // -- Attach AmbientTaskJournalController to root -----------------------
         AmbientTaskJournalController controller = rootGO.AddComponent<AmbientTaskJournalController>();
         SerializedObject controllerSO = new SerializedObject(controller);
         controllerSO.FindProperty("journalPanel").objectReferenceValue = journalPanel;
         controllerSO.ApplyModifiedProperties();
 
-        // ── Attach JournalBlurController to root ──────────────────────────────
+        // -- Attach JournalBlurController to root ------------------------------
         JournalBlurController blurController = rootGO.AddComponent<JournalBlurController>();
         SerializedObject blurSO = new SerializedObject(blurController);
         blurSO.FindProperty("darkenOverlay").objectReferenceValue = overlayImg;
@@ -270,7 +270,7 @@ public static class AmbientTaskJournalUIBuilder
         controllerSO.FindProperty("blurController").objectReferenceValue = blurController;
         controllerSO.ApplyModifiedProperties();
 
-        // ── Mark scene dirty ──────────────────────────────────────────────────
+        // -- Mark scene dirty --------------------------------------------------
         EditorUtility.SetDirty(rootGO);
         UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
             UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
@@ -289,7 +289,7 @@ public static class AmbientTaskJournalUIBuilder
         Selection.activeGameObject = rootGO;
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // -- Helpers ---------------------------------------------------------------
 
     private static void StretchFull(RectTransform rect)
     {
