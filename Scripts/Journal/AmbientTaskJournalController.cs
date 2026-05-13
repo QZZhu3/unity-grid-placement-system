@@ -51,10 +51,12 @@ public class AmbientTaskJournalController : MonoBehaviour
         if (blurController == null) blurController = Object.FindAnyObjectByType<JournalBlurController>();
 
         // Self-test: report wiring status
-        Debug.Log($"[Journal] AmbientTaskJournalController.Start() on '{gameObject.name}'" +
-                  $" | journalPanel={(journalPanel != null ? journalPanel.gameObject.name : \"NULL\")}" +
-                  $" | blurController={(blurController != null ? blurController.gameObject.name : \"NULL\")}" +
-                  $" | edgeThreshold={edgeThreshold} | peekDelay={peekDelay}");
+        string jpName  = journalPanel   != null ? journalPanel.gameObject.name   : "NULL";
+        string blurName = blurController != null ? blurController.gameObject.name : "NULL";
+        Debug.Log("[Journal] AmbientTaskJournalController.Start() on '" + gameObject.name + "'" +
+                  " | journalPanel=" + jpName +
+                  " | blurController=" + blurName +
+                  " | edgeThreshold=" + edgeThreshold + " | peekDelay=" + peekDelay);
 
         if (journalPanel == null)
             Debug.LogError("[Journal] journalPanel is NULL! Attach TaskJournalPanel to JournalPanel (child of AmbientJournalRoot).");
