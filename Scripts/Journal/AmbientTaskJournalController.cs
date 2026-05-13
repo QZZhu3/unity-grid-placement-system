@@ -9,13 +9,13 @@ using UnityEngine.InputSystem;
 /// Click-to-pin and click-outside-to-close use Mouse.current.
 ///
 /// Desktop flow:
-///   Mouse within edgeThreshold px of left edge → Peek (after peekDelay seconds)
-///   Click journal while Peeked → Pinned
-///   Click outside journal while Pinned → Hidden
+///   Mouse within edgeThreshold px of left edge -> Peek (after peekDelay seconds)
+///   Click journal while Peeked -> Pinned
+///   Click outside journal while Pinned -> Hidden
 ///
 /// Mobile hooks (call from UI buttons):
-///   OnMobileEdgeSwipe() → Peek
-///   OnMobileTap()       → Pinned
+///   OnMobileEdgeSwipe() -> Peek
+///   OnMobileTap()       -> Pinned
 ///
 /// Attach to: AmbientJournalRoot
 /// </summary>
@@ -43,7 +43,7 @@ public class AmbientTaskJournalController : MonoBehaviour
 
     public JournalState CurrentState => currentState;
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------------
 
     private void Start()
     {
@@ -60,7 +60,7 @@ public class AmbientTaskJournalController : MonoBehaviour
             Debug.LogError("[Journal] journalPanel is NULL! Attach TaskJournalPanel to JournalPanel (child of AmbientJournalRoot).");
 
         if (Mouse.current == null)
-            Debug.LogWarning("[Journal] Mouse.current is NULL — check Project Settings > Input System.");
+            Debug.LogWarning("[Journal] Mouse.current is NULL -- check Project Settings > Input System.");
 
         SetState(JournalState.Hidden, immediate: true);
     }
@@ -70,7 +70,7 @@ public class AmbientTaskJournalController : MonoBehaviour
         HandleStateTransitions();
     }
 
-    // ── State Machine ─────────────────────────────────────────────────────────
+    // -- State Machine ---------------------------------------------------------
 
     private void HandleStateTransitions()
     {
@@ -91,7 +91,7 @@ public class AmbientTaskJournalController : MonoBehaviour
                 {
                     hoverTimer += Time.deltaTime;
                     if (debugLogging && Time.frameCount % 10 == 0)
-                        Debug.Log($"[Journal] Near edge — hoverTimer={hoverTimer:F2}/{peekDelay}");
+                        Debug.Log($"[Journal] Near edge -- hoverTimer={hoverTimer:F2}/{peekDelay}");
                     if (hoverTimer >= peekDelay)
                         SetState(JournalState.Peek);
                 }
@@ -131,7 +131,7 @@ public class AmbientTaskJournalController : MonoBehaviour
         return Mouse.current.position.ReadValue().x <= edgeThreshold;
     }
 
-    // ── State Setter ──────────────────────────────────────────────────────────
+    // -- State Setter ----------------------------------------------------------
 
     private void SetState(JournalState newState, bool immediate = false)
     {
@@ -140,14 +140,14 @@ public class AmbientTaskJournalController : MonoBehaviour
         JournalState oldState = currentState;
         currentState = newState;
 
-        Debug.Log($"[Journal] *** STATE CHANGE: {oldState} → {newState} (immediate={immediate}) ***");
+        Debug.Log($"[Journal] *** STATE CHANGE: {oldState} -> {newState} (immediate={immediate}) ***");
 
         if (newState == JournalState.Hidden) hoverTimer = 0f;
 
         if (journalPanel != null)
             journalPanel.TransitionToState(newState, immediate);
         else
-            Debug.LogError("[Journal] Cannot transition — journalPanel is null!");
+            Debug.LogError("[Journal] Cannot transition -- journalPanel is null!");
 
         if (newState == JournalState.Pinned)
         {
@@ -161,7 +161,7 @@ public class AmbientTaskJournalController : MonoBehaviour
         }
     }
 
-    // ── EventTrigger hooks (wire on JournalHoverZone) ─────────────────────────
+    // -- EventTrigger hooks (wire on JournalHoverZone) -------------------------
     // These are only needed to keep the journal open while the cursor is over it.
 
     public void OnJournalEnter()
@@ -176,7 +176,7 @@ public class AmbientTaskJournalController : MonoBehaviour
         if (debugLogging) Debug.Log("[Journal] OnJournalExit");
     }
 
-    // ── Mobile Hooks ──────────────────────────────────────────────────────────
+    // -- Mobile Hooks ----------------------------------------------------------
 
     public void OnMobileEdgeSwipe()
     {
