@@ -68,16 +68,13 @@ public static class AmbientTaskJournalUIBuilder
         overlayImg.color = new Color(0f, 0f, 0f, 0f);
         overlayImg.raycastTarget = false;
 
-        // -- Journal root ------------------------------------------------------
+        // -- Journal root (full-screen transparent container) ------------------
+        // Must stretch to fill the Canvas so that JournalPanel's anchoredPosition
+        // is measured from the Canvas left edge, not from a small off-screen rect.
         GameObject rootGO = new GameObject("AmbientJournalRoot");
         rootGO.transform.SetParent(canvasT, false);
         RectTransform rootRect = rootGO.AddComponent<RectTransform>();
-        // Anchor to left side, vertically centred
-        rootRect.anchorMin        = new Vector2(0f, 0.5f);
-        rootRect.anchorMax        = new Vector2(0f, 0.5f);
-        rootRect.pivot            = new Vector2(0f, 0.5f);
-        rootRect.anchoredPosition = new Vector2(-300f, 0f); // off-screen left
-        rootRect.sizeDelta        = new Vector2(320f, 600f);
+        StretchFull(rootRect); // anchor 0,0 -> 1,1, all offsets 0
 
         // -- Peek zone (invisible trigger strip at left edge) ------------------
         GameObject peekZoneGO = new GameObject("PeekZone");
@@ -92,11 +89,17 @@ public static class AmbientTaskJournalUIBuilder
         peekZoneImg.color = new Color(0f, 0f, 0f, 0f); // invisible but raycasts
         peekZoneGO.transform.SetParent(canvasT, false); // keep at canvas level
 
-        // -- Journal panel -----------------------------------------------------
+        // -- Journal panel (left-anchored, fixed width, starts off-screen) ------
+        // TaskJournalPanel animates anchoredPosition.x between -300 (hidden),
+        // -150 (peek) and 20 (pinned). Requires a left-edge anchor with fixed width.
         GameObject panelGO = new GameObject("JournalPanel");
         panelGO.transform.SetParent(rootGO.transform, false);
         RectTransform panelRect = panelGO.AddComponent<RectTransform>();
-        StretchFull(panelRect);
+        panelRect.anchorMin        = new Vector2(0f, 0f);
+        panelRect.anchorMax        = new Vector2(0f, 1f);
+        panelRect.pivot            = new Vector2(0f, 0.5f);
+        panelRect.anchoredPosition = new Vector2(-300f, 0f); // starts off-screen
+        panelRect.sizeDelta        = new Vector2(320f, 0f);  // width 320, height = full
         CanvasGroup panelCG = panelGO.AddComponent<CanvasGroup>();
         panelCG.alpha          = 0f;
         panelCG.interactable   = false;
