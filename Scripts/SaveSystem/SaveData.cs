@@ -21,6 +21,9 @@ namespace PlacementSystem.SaveSystem
 
         /// <summary>Chest task progress and pending chest queue.</summary>
         public ChestSaveData       chestData       = new ChestSaveData();
+
+        /// <summary>Active focus session state (null when no session is running).</summary>
+        public FocusSessionSaveData focusSessionData = null;
     }
 
     [Serializable]
