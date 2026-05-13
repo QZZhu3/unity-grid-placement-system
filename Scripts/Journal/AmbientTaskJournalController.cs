@@ -2,40 +2,48 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Central state machine and input handler for the Ambient Task Journal.
-/// Handles transitions between Hidden, Peek, and Pinned states based on user input.
+/// Central state machine for the Ambient Task Journal.
 ///
-/// Desktop input:
-///   - Hover near edge (PeekZone) → Peek (after peekDelay seconds)
-///   - Click journal during Peek → Pinned
-///   - Click outside journal during Pinned → Hidden
+/// Peek detection uses screen-edge mouse proximity (no EventTrigger needed on PeekZone).
+/// Hover-over-panel detection uses JournalHoverZone EventTrigger (OnJournalEnter/Exit).
+/// Click-to-pin and click-outside-to-close use Mouse.current.
 ///
-/// Mobile hooks:
-///   - OnMobileEdgeSwipe() → Peek
-///   - OnMobileTap() → Pinned
+/// Desktop flow:
+///   Mouse within edgeThreshold px of left edge → Peek (after peekDelay seconds)
+///   Click journal while Peeked → Pinned
+///   Click outside journal while Pinned → Hidden
+///
+/// Mobile hooks (call from UI buttons):
+///   OnMobileEdgeSwipe() → Peek
+///   OnMobileTap()       → Pinned
 ///
 /// Attach to: AmbientJournalRoot
 /// </summary>
 public class AmbientTaskJournalController : MonoBehaviour
 {
     [Header("Dependencies")]
-    [SerializeField] private TaskJournalPanel journalPanel;
+    [SerializeField] private TaskJournalPanel      journalPanel;
     [SerializeField] private JournalBlurController blurController;
 
+    [Header("Edge Detection")]
+    [Tooltip("Pixels from the left edge of the screen that trigger Peek mode.")]
+    [SerializeField] private float edgeThreshold = 50f;
+
     [Header("Settings")]
-    [Tooltip("Delay in seconds before Peek mode activates to prevent flickering.")]
+    [Tooltip("Seconds the cursor must stay near the edge before Peek activates.")]
     [SerializeField] private float peekDelay = 0.25f;
 
-    private JournalState currentState = JournalState.Hidden;
-    private float hoverTimer = 0f;
-    private bool isHoveringPeekZone = false;
-    private bool isHoveringJournal = false;
+    private JournalState currentState    = JournalState.Hidden;
+    private float        hoverTimer      = 0f;
+    private bool         isHoveringJournal = false;
 
     public JournalState CurrentState => currentState;
 
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
+
     private void Start()
     {
-        if (journalPanel == null) journalPanel = GetComponentInChildren<TaskJournalPanel>();
+        if (journalPanel   == null) journalPanel   = GetComponentInChildren<TaskJournalPanel>();
         if (blurController == null) blurController = Object.FindAnyObjectByType<JournalBlurController>();
 
         SetState(JournalState.Hidden, immediate: true);
@@ -46,12 +54,16 @@ public class AmbientTaskJournalController : MonoBehaviour
         HandleStateTransitions();
     }
 
+    // ── State Machine ─────────────────────────────────────────────────────────
+
     private void HandleStateTransitions()
     {
+        bool nearEdge = IsMouseNearLeftEdge();
+
         switch (currentState)
         {
             case JournalState.Hidden:
-                if (isHoveringPeekZone)
+                if (nearEdge)
                 {
                     hoverTimer += Time.deltaTime;
                     if (hoverTimer >= peekDelay)
@@ -64,22 +76,36 @@ public class AmbientTaskJournalController : MonoBehaviour
                 break;
 
             case JournalState.Peek:
-                if (!isHoveringPeekZone && !isHoveringJournal)
+                if (!nearEdge && !isHoveringJournal)
                 {
                     SetState(JournalState.Hidden);
                 }
-                else if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame && isHoveringJournal)
+                else if (Mouse.current != null &&
+                         Mouse.current.leftButton.wasPressedThisFrame &&
+                         isHoveringJournal)
                 {
                     SetState(JournalState.Pinned);
                 }
                 break;
 
             case JournalState.Pinned:
-                if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame && !isHoveringJournal)
+                if (Mouse.current != null &&
+                    Mouse.current.leftButton.wasPressedThisFrame &&
+                    !isHoveringJournal)
+                {
                     SetState(JournalState.Hidden);
+                }
                 break;
         }
     }
+
+    private bool IsMouseNearLeftEdge()
+    {
+        if (Mouse.current == null) return false;
+        return Mouse.current.position.ReadValue().x <= edgeThreshold;
+    }
+
+    // ── State Setter ──────────────────────────────────────────────────────────
 
     private void SetState(JournalState newState, bool immediate = false)
     {
@@ -87,6 +113,8 @@ public class AmbientTaskJournalController : MonoBehaviour
 
         JournalState oldState = currentState;
         currentState = newState;
+
+        if (newState == JournalState.Hidden) hoverTimer = 0f;
 
         if (journalPanel != null)
             journalPanel.TransitionToState(newState, immediate);
@@ -103,14 +131,13 @@ public class AmbientTaskJournalController : MonoBehaviour
         }
     }
 
-    // ── EventTrigger hooks (wire these in the Inspector) ─────────────────────
+    // ── EventTrigger hooks (wire on JournalHoverZone) ─────────────────────────
+    // These are only needed to keep the journal open while the cursor is over it.
 
-    public void OnPeekZoneEnter()  => isHoveringPeekZone = true;
-    public void OnPeekZoneExit()   => isHoveringPeekZone = false;
-    public void OnJournalEnter()   => isHoveringJournal  = true;
-    public void OnJournalExit()    => isHoveringJournal  = false;
+    public void OnJournalEnter() => isHoveringJournal = true;
+    public void OnJournalExit()  => isHoveringJournal = false;
 
-    // ── Future Mobile Hooks ───────────────────────────────────────────────────
+    // ── Mobile Hooks ──────────────────────────────────────────────────────────
 
     public void OnMobileEdgeSwipe()
     {
