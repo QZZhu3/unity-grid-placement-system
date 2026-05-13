@@ -1,19 +1,26 @@
 using UnityEngine;
 
 /// <summary>
-/// Centralized reward distributor.
+/// Centralized reward coordinator.
 ///
-/// Acts as the coordinator between the task/progression layer and the chest/reward layer.
-/// All reward-granting flows pass through this class so that UI, analytics, and
-/// future systems only need to subscribe to one place.
+/// RewardManager is an event emitter only. It does not call AddXp or AddProgress directly.
+/// Instead it fires <see cref="OnRewardGranted"/> and lets downstream systems react
+/// independently. This keeps RewardManager decoupled from progression and chest logic.
 ///
-/// Responsibilities:
-///   - Accept task completion signals and distribute XP + chest progress
-///   - Open chests by drawing rewards and adding them to inventory
-///   - Fire events for UI and analytics to consume
+/// Reward flow:
+///   Caller → CompleteTask(xpMultiplier)
+///                ↓
+///          OnRewardGranted(xp, chestTicks) fired
+///                ↓
+///   ProgressionRewardListener → PlayerProgressionManager.AddXp()
+///   ChestRewardListener       → ChestProgressManager.AddProgress()
 ///
-/// PlayerProgressionManager and ChestProgressManager must NOT know about each other.
-/// RewardManager is the bridge.
+/// Chest opening flow:
+///   Caller → OpenNextChest()
+///                ↓
+///          OnChestOpened(ChestOpenResult) fired
+///                ↓
+///   UI / analytics subscribe and react
 ///
 /// Attach to: ProgressionSystem (or a dedicated ChestSystem GameObject).
 /// </summary>
@@ -21,17 +28,15 @@ public class RewardManager : MonoBehaviour
 {
     // ── Inspector ─────────────────────────────────────────────────────────────
     [Header("Dependencies (auto-discovered if left empty)")]
-    [SerializeField] private PlayerProgressionManager progressionManager;
-    [SerializeField] private ChestProgressManager     chestProgress;
-    [SerializeField] private ChestQueueManager        chestQueue;
-    [SerializeField] private ItemRewardPool           rewardPool;
-    [SerializeField] private InventoryManager         inventoryManager;
+    [SerializeField] private ChestQueueManager chestQueue;
+    [SerializeField] private ItemRewardPool    rewardPool;
+    [SerializeField] private InventoryManager  inventoryManager;
 
     [Header("Task Reward Settings")]
-    [Tooltip("XP granted per completed task.")]
+    [Tooltip("Base XP granted per completed task.")]
     [SerializeField, Min(0f)] private float xpPerTask = 50f;
 
-    [Tooltip("Chest progress granted per completed task (usually 1).")]
+    [Tooltip("Chest progress ticks granted per completed task (usually 1).")]
     [SerializeField, Min(1)] private int chestProgressPerTask = 1;
 
     [Header("Active Season (optional)")]
@@ -43,7 +48,17 @@ public class RewardManager : MonoBehaviour
 
     // ── Events ────────────────────────────────────────────────────────────────
 
-    /// <summary>Fired when a task is completed. Arg: the XP amount granted.</summary>
+    /// <summary>
+    /// Fired when a task is completed.
+    /// Args: (xpAmount, chestProgressTicks).
+    /// Downstream systems (ProgressionRewardListener, ChestRewardListener) subscribe here.
+    /// </summary>
+    public event System.Action<float, int> OnRewardGranted;
+
+    /// <summary>
+    /// Fired when a task is completed (legacy / analytics convenience).
+    /// Arg: xpAmount granted.
+    /// </summary>
     public event System.Action<float> OnTaskCompleted;
 
     /// <summary>Fired when a chest is successfully opened with rewards.</summary>
@@ -52,10 +67,6 @@ public class RewardManager : MonoBehaviour
     // ── Lifecycle ─────────────────────────────────────────────────────────────
     private void Awake()
     {
-        if (progressionManager == null)
-            progressionManager = FindAnyObjectByType<PlayerProgressionManager>();
-        if (chestProgress == null)
-            chestProgress = FindAnyObjectByType<ChestProgressManager>();
         if (chestQueue == null)
             chestQueue = FindAnyObjectByType<ChestQueueManager>();
         if (rewardPool == null)
@@ -73,22 +84,18 @@ public class RewardManager : MonoBehaviour
 
     /// <summary>
     /// Call this when a task is completed.
-    /// Grants XP and chest progress. PlayerProgressionManager is not called directly
-    /// from task systems — all task rewards flow through here.
+    /// Fires <see cref="OnRewardGranted"/> and <see cref="OnTaskCompleted"/>.
+    /// Does NOT call AddXp or AddProgress directly — listeners handle that.
     /// </summary>
-    public void CompleteTask()
+    /// <param name="xpMultiplier">Multiplier applied to the base XP value (default 1).</param>
+    public void CompleteTask(float xpMultiplier = 1f)
     {
-        Debug.Log("[RewardManager] Task completed.");
+        float xp = xpPerTask * Mathf.Max(0f, xpMultiplier);
+        Debug.Log($"[RewardManager] Task completed. XP: {xp:F0} (x{xpMultiplier}), " +
+                  $"Chest ticks: {chestProgressPerTask}");
 
-        // Grant XP
-        if (progressionManager != null && xpPerTask > 0f)
-            progressionManager.AddXp(xpPerTask);
-
-        // Grant chest progress
-        if (chestProgress != null)
-            chestProgress.AddProgress(chestProgressPerTask);
-
-        OnTaskCompleted?.Invoke(xpPerTask);
+        OnRewardGranted?.Invoke(xp, chestProgressPerTask);
+        OnTaskCompleted?.Invoke(xp);
     }
 
     /// <summary>
@@ -116,8 +123,8 @@ public class RewardManager : MonoBehaviour
 
         // Build draw context
         var context = new RewardSelectionContext(
-            chest:         chest,
-            activeSeason:  activeSeason);
+            chest:        chest,
+            activeSeason: activeSeason);
 
         // Draw rewards
         RewardBundle bundle = drawService.Draw(context);

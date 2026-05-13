@@ -12,9 +12,9 @@ using UnityEngine;
 /// Architecture:
 ///   UI scripts → ActivityManager.CompleteActivity(definition)
 ///                      ↓
-///              RewardManager.CompleteTask() × chestProgressTicks
+///              RewardManager.CompleteTask(xpMultiplier) × chestProgressTicks
 ///                      ↓
-///              XP + chest progress granted
+///              OnRewardGranted fired → ProgressionRewardListener + ChestRewardListener
 ///
 /// Attach to: ProgressionSystem (alongside RewardManager)
 /// </summary>
@@ -80,19 +80,12 @@ public class ActivityManager : MonoBehaviour
     {
         if (rewardManager == null) return;
 
-        // Grant chest progress ticks (each tick = one CompleteTask call)
-        int ticks = Mathf.Max(0, config.chestProgressTicks);
-        for (int i = 0; i < ticks; i++)
-            rewardManager.CompleteTask();
+        // Each chest progress tick is one CompleteTask call, with the XP multiplier applied.
+        // RewardManager now supports CompleteTask(float xpMultiplier) natively.
+        int ticks = Mathf.Max(1, config.chestProgressTicks);
+        float multiplier = Mathf.Max(0f, config.xpMultiplier);
 
-        // XP multiplier: RewardManager.CompleteTask() grants its own base XP.
-        // If the multiplier differs from 1, log a note — full multiplier support
-        // requires a CompleteTask(float xpMultiplier) overload in RewardManager.
-        if (!Mathf.Approximately(config.xpMultiplier, 1f))
-        {
-            Debug.Log($"[ActivityManager] XP multiplier {config.xpMultiplier}x requested " +
-                      "but RewardManager does not yet support per-call multipliers. " +
-                      "Add a CompleteTask(float xpMultiplier) overload to enable this.");
-        }
+        for (int i = 0; i < ticks; i++)
+            rewardManager.CompleteTask(multiplier);
     }
 }
