@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// Central state machine and input handler for the Ambient Task Journal.
@@ -67,14 +68,14 @@ public class AmbientTaskJournalController : MonoBehaviour
                 {
                     SetState(JournalState.Hidden);
                 }
-                else if (Input.GetMouseButtonDown(0) && isHoveringJournal)
+                else if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame && isHoveringJournal)
                 {
                     SetState(JournalState.Pinned);
                 }
                 break;
 
             case JournalState.Pinned:
-                if (Input.GetMouseButtonDown(0) && !isHoveringJournal)
+                if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame && !isHoveringJournal)
                     SetState(JournalState.Hidden);
                 break;
         }
