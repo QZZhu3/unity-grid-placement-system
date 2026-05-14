@@ -24,6 +24,18 @@ namespace PlacementSystem.SaveSystem
 
         /// <summary>Active focus session state (null when no session is running).</summary>
         public FocusSessionSaveData focusSessionData = null;
+
+        /// <summary>
+        /// The currently active TaskInstance (the task shown in the Journal).
+        /// Null when no task has been generated yet.
+        /// </summary>
+        public TaskInstanceSaveData activeTaskInstance = null;
+
+        /// <summary>
+        /// Rolling telemetry event history for the recommendation layer.
+        /// Populated by PlayerTelemetryManager.
+        /// </summary>
+        public TelemetrySaveData telemetry = null;
     }
 
     [Serializable]
